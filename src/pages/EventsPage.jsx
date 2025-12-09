@@ -44,9 +44,9 @@ const EventsPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* Шапка */}
-            <div className="bg-white border-b">
+            <div className="bg-white dark:bg-gray-950 border-b">
                 <div className="container mx-auto px-6 py-8">
                     <div className="flex justify-between items-center mb-6">
                         <div>
@@ -98,7 +98,7 @@ const EventsPage = () => {
                                     <p className="text-sm text-muted-foreground">Все события</p>
                                     <p className="text-3xl font-bold">{stats.total}</p>
                                 </div>
-                                <Calendar className="h-10 w-10 text-primary/20" />
+                                <Calendar className="h-10 w-10 text-primary/40 dark:text-primary/70" />
                             </div>
                         </CardContent>
                     </Card>
@@ -110,7 +110,7 @@ const EventsPage = () => {
                                     <p className="text-sm text-muted-foreground">Вы участвуете</p>
                                     <p className="text-3xl font-bold">{stats.participating}</p>
                                 </div>
-                                <Users className="h-10 w-10 text-primary/20" />
+                                <Users className="h-10 w-10 text-primary/40 dark:text-primary/70" />
                             </div>
                         </CardContent>
                     </Card>
@@ -122,7 +122,7 @@ const EventsPage = () => {
                                     <p className="text-sm text-muted-foreground">Предстоящие</p>
                                     <p className="text-3xl font-bold">{stats.upcoming}</p>
                                 </div>
-                                <Calendar className="h-10 w-10 text-primary/20" />
+                                <Calendar className="h-10 w-10 text-primary/40 dark:text-primary/70" />
                             </div>
                         </CardContent>
                     </Card>

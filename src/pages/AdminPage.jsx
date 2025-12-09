@@ -24,9 +24,9 @@ const AdminPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* Шапка админки */}
-            <div className="bg-white border-b">
+            <div className="bg-white dark:bg-gray-950 border-b">
                 <div className="container mx-auto px-6 py-8">
                     <div className="flex justify-between items-center mb-6">
                         <div>

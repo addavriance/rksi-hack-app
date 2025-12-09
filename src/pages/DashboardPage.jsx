@@ -6,9 +6,10 @@ import {
     Clock, CheckCircle, AlertCircle, Star
 } from "lucide-react";
 import { mockEvents } from "@/data/mockEvents";
-import { mockUsers } from "@/data/mockUsers";
+import {useAuth} from "@/contexts/AuthContext.jsx";
 
 const DashboardPage = () => {
+    const {user} = useAuth();
     // Статистика
     const stats = {
         totalEvents: mockEvents.length,
@@ -21,7 +22,6 @@ const DashboardPage = () => {
     };
 
     // Ближайшие события
-    console.log(mockEvents)
     const upcomingEvents = mockEvents
         .filter(e => e.status === "active" && new Date(e.startDate) > new Date())
         .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
@@ -35,7 +35,8 @@ const DashboardPage = () => {
     return (
         <div className="space-y-8">
             {/* Приветствие */}
-            <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl p-6">
+            <div className="bg-gradient-to-r from-primary/5 to-primary/10
+                dark:bg-gradient-to-r dark:from-primary/15 dark:to-primary/25 rounded-xl p-6">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                     <div>
                         <h1 className="text-3xl font-bold mb-2">Добро пожаловать!</h1>
@@ -43,10 +44,12 @@ const DashboardPage = () => {
                             Здесь вы можете управлять своими событиями и быть в курсе всего происходящего
                         </p>
                     </div>
-                    <Button className="mt-4 md:mt-0">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        Создать событие
-                    </Button>
+                    {user.role === "ADMIN" && (
+                        <Button className="mt-4 md:mt-0">
+                            <Calendar className="mr-2 h-4 w-4"/>
+                            Создать событие
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -56,25 +59,11 @@ const DashboardPage = () => {
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-muted-foreground">Все события</p>
-                                <p className="text-3xl font-bold">{stats.totalEvents}</p>
+                                <p className="text-sm text-muted-foreground dark:text-gray-400">Все события</p>
+                                <p className="text-3xl font-bold dark:text-white">{stats.totalEvents}</p>
                             </div>
-                            <div className="p-3 rounded-lg bg-blue-100">
-                                <Calendar className="h-6 w-6 text-blue-600" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Активные</p>
-                                <p className="text-3xl font-bold">{stats.activeEvents}</p>
-                            </div>
-                            <div className="p-3 rounded-lg bg-green-100">
-                                <Clock className="h-6 w-6 text-green-600" />
+                            <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                                <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                             </div>
                         </div>
                     </CardContent>
@@ -84,11 +73,25 @@ const DashboardPage = () => {
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-muted-foreground">Вы участвуете</p>
-                                <p className="text-3xl font-bold">{stats.myEvents}</p>
+                                <p className="text-sm text-muted-foreground dark:text-gray-400">Активные</p>
+                                <p className="text-3xl font-bold dark:text-white">{stats.activeEvents}</p>
                             </div>
-                            <div className="p-3 rounded-lg bg-purple-100">
-                                <Users className="h-6 w-6 text-purple-600" />
+                            <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/30">
+                                <Clock className="h-6 w-6 text-green-600 dark:text-green-400" />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-muted-foreground dark:text-gray-400">Вы участвуете</p>
+                                <p className="text-3xl font-bold dark:text-white">{stats.myEvents}</p>
+                            </div>
+                            <div className="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                                <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                             </div>
                         </div>
                     </CardContent>
@@ -101,8 +104,8 @@ const DashboardPage = () => {
                                 <p className="text-sm text-muted-foreground">Предстоящие</p>
                                 <p className="text-3xl font-bold">{stats.upcomingEvents}</p>
                             </div>
-                            <div className="p-3 rounded-lg bg-orange-100">
-                                <TrendingUp className="h-6 w-6 text-orange-600" />
+                            <div className="p-3 rounded-lg bg-orange-100 dark:bg-orange-900/30">
+                                <TrendingUp className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                             </div>
                         </div>
                     </CardContent>
@@ -122,7 +125,7 @@ const DashboardPage = () => {
                     <CardContent>
                         <div className="space-y-4">
                             {upcomingEvents.map(event => (
-                                <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                                <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-card">
                                     <div className="flex items-center">
                                         <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mr-4">
                                             <Calendar className="h-6 w-6 text-primary" />
@@ -142,12 +145,12 @@ const DashboardPage = () => {
                                     <div className="text-right">
                                         <div className="text-sm font-medium">{event.participants} участников</div>
                                         {event.isParticipating ? (
-                                            <div className="text-sm text-green-600 flex items-center">
+                                            <div className="text-sm text-green-600 flex items-center mt-5">
                                                 <CheckCircle className="h-3 w-3 mr-1" />
                                                 Вы участвуете
                                             </div>
                                         ) : (
-                                            <Button size="sm" asChild>
+                                            <Button size="sm" asChild className="mt-5">
                                                 <Link to={`/events/${event.id}`}>Участвовать</Link>
                                                 {/*заглушка, но тут по логике нужен хендлер просто который
                                                 оптимистично обновит состояние на то что мы участвуем и направит запрос на бек*/}
@@ -208,14 +211,14 @@ const DashboardPage = () => {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-3">
-                                <div className="flex items-center p-3 bg-blue-50 rounded-lg">
+                                <div className="flex items-center p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
                                     <AlertCircle className="h-5 w-5 text-blue-600 mr-3" />
                                     <div>
                                         <div className="font-medium">Завтра: День рождения</div>
                                         <div className="text-sm text-muted-foreground">Не забудьте подтвердить участие</div>
                                     </div>
                                 </div>
-                                <div className="flex items-center p-3 bg-green-50 rounded-lg">
+                                <div className="flex items-center p-3 bg-green-50 dark:bg-green-950 rounded-lg">
                                     <Star className="h-5 w-5 text-green-600 mr-3" />
                                     <div>
                                         <div className="font-medium">Новое событие</div>
