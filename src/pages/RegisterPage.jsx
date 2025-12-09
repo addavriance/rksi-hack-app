@@ -1,22 +1,21 @@
-// LoginPage.jsx
+// RegisterPage.jsx
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { LoaderCircle, LogIn, AlertCircle } from "lucide-react";
+import { LoaderCircle, UserPlus, AlertCircle } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { toast } from "sonner";
 import { api } from "../api";
-import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 
-const LoginPage = () => {
+const RegisterPage = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [isAuthenticating, setIsAuthenticating] = useState(false);
+    const [fullName, setFullName] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [isRegistering, setIsRegistering] = useState(false);
     const [errors, setErrors] = useState({});
 
     const validateEmail = (email) => {
@@ -33,10 +32,22 @@ const LoginPage = () => {
             newErrors.email = "Некорректный формат email";
         }
 
+        if (!fullName.trim()) {
+            newErrors.fullName = "Полное имя обязательно";
+        } else if (fullName.trim().length < 2) {
+            newErrors.fullName = "Минимум 2 символа";
+        }
+
         if (!password) {
             newErrors.password = "Пароль обязателен";
         } else if (password.length < 4) {
             newErrors.password = "Минимум 4 символа";
+        }
+
+        if (!confirmPassword) {
+            newErrors.confirmPassword = "Подтвердите пароль";
+        } else if (password !== confirmPassword) {
+            newErrors.confirmPassword = "Пароли не совпадают";
         }
 
         setErrors(newErrors);
@@ -51,35 +62,43 @@ const LoginPage = () => {
             return;
         }
 
-        setIsAuthenticating(true);
+        setIsRegistering(true);
 
         try {
-            const result = await login(email, password);
+            const result = await api.register(email, password, fullName.trim());
 
-            if (result && result.success) {
-                // Перенаправление будет обработано в App.jsx через проверку isAuthenticated
+            if (result && result.token) {
+                // Сохраняем email и password для автоматической авторизации после верификации
+                sessionStorage.setItem('pending_email', email);
+                sessionStorage.setItem('pending_password', password);
+
+                // Перенаправляем на страницу верификации с токеном
+                navigate(`/verify?token=${result.token}`);
+                toast.success("Регистрация успешна! Проверьте email для получения кода верификации.");
             } else {
-                throw new Error(result?.error || "Неверные учетные данные");
+                throw new Error("Неверный ответ от сервера");
             }
         } catch (error) {
-            console.error("Auth error:", error);
-            toast.error(error.message || "Произошла ошибка при авторизации");
+            console.error("Registration error:", error);
+            const errorMessage = error.response?.data?.detail || 
+                error.message || 
+                "Произошла ошибка при регистрации";
+            toast.error(errorMessage);
         } finally {
-            setIsAuthenticating(false);
+            setIsRegistering(false);
         }
     };
 
-
     return (
         <div className="flex min-h-screen">
-            {/* Левая панель - изображение ??? */}
+            {/* Левая панель - изображение */}
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden left-panel">
                 <div className="absolute inset-0 bg-black/20"></div>
                 <div className="relative z-10">
                     <div className="max-w-[27rem] h-full flex flex-col pt-10 pb-32 px-12 justify-between text-gray-100 [text-shadow:0_1px_2px_rgba(0,0,0,0.4),0_0_20px_rgba(255,255,255,0.1)]">
                         <h1 className="text-5xl font-extrabold mb-6 tracking-[0.75rem]">TTK</h1>
                         <p className="text-xl mb-4">
-                                Войдите в свой аккаунт, чтобы продолжить работу
+                            Создайте аккаунт, чтобы начать работу
                         </p>
                     </div>
                 </div>
@@ -96,14 +115,14 @@ const LoginPage = () => {
                         <CardHeader className="text-center space-y-1">
                             <div className="flex justify-center mb-2">
                                 <div className="w-12 h-12 rounded-full flex items-center justify-center">
-                                    <LogIn className="h-6 w-6" />
+                                    <UserPlus className="h-6 w-6" />
                                 </div>
                             </div>
                             <CardTitle className="text-2xl">
-                                Вход в систему
+                                Создать аккаунт
                             </CardTitle>
                             <p className="text-muted-foreground">
-                                Введите свои учетные данные
+                                Заполните форму для регистрации
                             </p>
                         </CardHeader>
 
@@ -132,6 +151,28 @@ const LoginPage = () => {
                                 </div>
 
                                 <div className="space-y-2">
+                                    <Label htmlFor="fullName">Полное имя</Label>
+                                    <Input
+                                        size="sm"
+                                        id="fullName"
+                                        type="text"
+                                        placeholder="Введите полное имя"
+                                        value={fullName}
+                                        onChange={(e) => {
+                                            setFullName(e.target.value);
+                                            if (errors.fullName) setErrors({...errors, fullName: ""});
+                                        }}
+                                        className={errors.fullName ? "border-red-500" : ""}
+                                    />
+                                    {errors.fullName && (
+                                        <p className="text-sm text-red-500 flex items-center gap-1">
+                                            <AlertCircle className="h-3 w-3" />
+                                            {errors.fullName}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
                                     <Label htmlFor="password">Пароль</Label>
                                     <Input
                                         id="password"
@@ -153,22 +194,44 @@ const LoginPage = () => {
                                     )}
                                 </div>
 
+                                <div className="space-y-2">
+                                    <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
+                                    <Input
+                                        id="confirmPassword"
+                                        type="password"
+                                        placeholder="Повторите пароль"
+                                        value={confirmPassword}
+                                        onChange={(e) => {
+                                            setConfirmPassword(e.target.value);
+                                            if (errors.confirmPassword) setErrors({...errors, confirmPassword: ""});
+                                        }}
+                                        className={errors.confirmPassword ? "border-red-500" : ""}
+                                        size="sm"
+                                    />
+                                    {errors.confirmPassword && (
+                                        <p className="text-sm text-red-500 flex items-center gap-1">
+                                            <AlertCircle className="h-3 w-3" />
+                                            {errors.confirmPassword}
+                                        </p>
+                                    )}
+                                </div>
+
                                 <Button
                                     type="submit"
                                     className="w-full h-11 select-none text-white"
-                                    disabled={isAuthenticating}
+                                    disabled={isRegistering}
                                     size="sm"
                                     variant="default"
                                 >
-                                    {isAuthenticating ? (
+                                    {isRegistering ? (
                                         <>
                                             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                                            Вход...
+                                            Регистрация...
                                         </>
                                     ) : (
                                         <>
-                                            <LogIn className="mr-2 h-4 w-4" />
-                                            Войти
+                                            <UserPlus className="mr-2 h-4 w-4" />
+                                            Зарегистрироваться
                                         </>
                                     )}
                                 </Button>
@@ -182,8 +245,8 @@ const LoginPage = () => {
                                     size="sm"
                                     className="text-blue-600"
                                 >
-                                    <Link to="/register">
-                                        Нет аккаунта? Зарегистрироваться
+                                    <Link to="/login">
+                                        Уже есть аккаунт? Войти
                                     </Link>
                                 </Button>
                             </div>
@@ -199,4 +262,5 @@ const LoginPage = () => {
     );
 };
 
-export default LoginPage;
+export default RegisterPage;
+

@@ -25,30 +25,32 @@ class API {
 
     /**
      * Регистрация пользователя
-     * @param {string} username - Имя пользователя
+     * @param {string} email - Email пользователя
      * @param {string} password - Пароль
-     * @returns {Promise<null>}
+     * @param {string} full_name - Полное имя пользователя
+     * @returns {Promise<{token: string}>} - Содержит токен для верификации
      */
-    async register(username, password) {
+    async register(email, password, full_name) {
         const response = await this.apiClient.post('/register', {
-            username,
-            password
+            email,
+            password,
+            full_name
         });
         return response.data;
     }
 
     /**
      * Авторизация пользователя
-     * @param {string} username - Имя пользователя
+     * @param {string} email - Email пользователя
      * @param {string} password - Пароль
      * @returns {Promise<{
      *   "login_session_uid": string,
      *   "login_session_token": string
      * }>} - Содержит login_session_uid и login_session_token
      */
-    async login(username, password) {
+    async login(email, password) {
         const response = await this.apiClient.post('/login', {
-            username,
+            email,
             password
         });
 
@@ -61,8 +63,22 @@ class API {
     }
 
     /**
+     * Верификация регистрации
+     * @param {string} token - Токен верификации
+     * @param {number} code - Код верификации
+     * @returns {Promise<{}>} - Пустой объект при успехе
+     */
+    async verifyRegistration(token, code) {
+        const response = await this.apiClient.post('/register/verification', {
+            token,
+            code
+        });
+        return response.data;
+    }
+
+    /**
      * Получение информации о текущем пользователе
-     * @returns {Promise<{username: string}>} - Содержит username текущего пользователя
+     * @returns {Promise<{email: string, full_name: string}>} - Содержит email и full_name текущего пользователя
      */
     async getActiveLogin() {
         const response = await this.apiClient.get('/login');
