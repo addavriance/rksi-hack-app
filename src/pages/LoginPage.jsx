@@ -123,19 +123,16 @@ const LoginPage = ({ onLogin, loading }) => {
         <div className="flex min-h-screen">
             {/* Левая панель - изображение ??? */}
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden left-panel">
-                <div className="absolute inset-0 bg-black/10"></div>
-                <div className="relative z-10 flex flex-col justify-start p-12">
-                    <div className="max-w-md mt-60">
-                        <h1 className="text-4xl font-bold mb-6">Добро пожаловать</h1>
+                <div className="absolute inset-0 bg-black/20"></div>
+                <div className="relative z-10">
+                    <div className="max-w-[27rem] h-full flex flex-col pt-10 pb-32 px-12 justify-between text-gray-100 [text-shadow:0_1px_2px_rgba(0,0,0,0.4),0_0_20px_rgba(255,255,255,0.1)]">
+                        <h1 className="text-5xl font-extrabold mb-6 tracking-[0.75rem]">TTK</h1>
                         <p className="text-xl mb-4">
-                            {isLoginMode
-                                ? "Войдите в свой аккаунт, чтобы продолжить работу"
-                                : "Присоединяйтесь к нашему сообществу"
-                            }
+                                Войдите в свой аккаунт, чтобы продолжить работу
                         </p>
                     </div>
                 </div>
-                <div className="absolute bottom-6 px-12 text-sm flex justify-between w-full">
+                <div className="absolute bottom-6 px-12 text-sm flex justify-between w-full text-gray-100 [text-shadow:0_1px_2px_rgba(0,0,0,0.4),0_0_20px_rgba(255,255,255,0.1)]">
                     <p>© 2025 RKSI Hack</p>
                     <p><span className="uppercase text-[0.7rem]">asyncore</span> powered</p>
                 </div>
@@ -238,7 +235,7 @@ const LoginPage = ({ onLogin, loading }) => {
 
                                 <Button
                                     type="submit"
-                                    className="w-full h-11 select-none"
+                                    className="w-full h-11 select-none text-white"
                                     disabled={isAuthenticating}
                                     size="sm"
                                     variant="default"
