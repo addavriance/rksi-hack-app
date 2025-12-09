@@ -62,7 +62,7 @@ export const mockEvents = [
         title: "Новогодний корпоратив",
         description: "Ежегодный новогодний корпоратив для всех сотрудников",
         fullDescription: "Торжественный ужин, развлекательная программа, дискотека и новогодние подарки. Дресс-код: праздничный.",
-        image: "https://images.unsplash.com/photo-1579532536935-6199281cd35c?w=400&h=300&fit=crop",
+        image: "https://restoran.kz/neofiles/serve/59c4ac1ed062917482adb8dc",
         startDate: "2025-12-28T19:00:00", // Будет третьей в фильтре
         endDate: "2025-12-29T02:00:00",
         participants: 95,
