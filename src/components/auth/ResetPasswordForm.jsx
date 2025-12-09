@@ -48,7 +48,7 @@ export const ResetPasswordForm = () => {
 
         try {
             await api.resetPassword(token, password);
-            toast.success("Пароль успешно изменен!");
+            toast.success("Пароль успешно изменен! Войдите повторно.");
 
             setTimeout(() => {
                 navigate('/login');
