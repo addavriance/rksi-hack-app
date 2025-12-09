@@ -1,201 +1,78 @@
-// LoginPage.jsx
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { LoaderCircle, LogIn, AlertCircle } from "lucide-react";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { toast } from "sonner";
-import { api } from "../api";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useAuthForm } from "../hooks/useAuthForm";
+import { AuthLayout } from "../components/auth/AuthLayout";
+import { FormField } from "../components/auth/FormField";
+import { SubmitButton } from "../components/auth/SubmitButton";
+import { Button } from "../components/ui/button";
+import { LogIn } from "lucide-react";
+import { validators } from "../utils/validators";
 
 const LoginPage = () => {
-    const navigate = useNavigate();
     const { login } = useAuth();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isAuthenticating, setIsAuthenticating] = useState(false);
-    const [errors, setErrors] = useState({});
 
-    const validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
+    const {
+        formData: { email, password },
+        errors,
+        isSubmitting,
+        updateField,
+        handleSubmit
+    } = useAuthForm(
+        { email: "", password: "" },
+        { email: validators.email, password: validators.password }
+    );
 
-    const validateForm = () => {
-        const newErrors = {};
-
-        if (!email.trim()) {
-            newErrors.email = "Email обязателен";
-        } else if (!validateEmail(email)) {
-            newErrors.email = "Некорректный формат email";
-        }
-
-        if (!password) {
-            newErrors.password = "Пароль обязателен";
-        } else if (password.length < 4) {
-            newErrors.password = "Минимум 4 символа";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!validateForm()) {
-            toast.error("Пожалуйста, исправьте ошибки в форме");
-            return;
-        }
-
-        setIsAuthenticating(true);
-
-        try {
-            const result = await login(email, password);
-
-            if (result && result.success) {
-                // Перенаправление будет обработано в App.jsx через проверку isAuthenticated
-            } else {
-                throw new Error(result?.error || "Неверные учетные данные");
-            }
-        } catch (error) {
-            console.error("Auth error:", error);
-            toast.error(error.message || "Произошла ошибка при авторизации");
-        } finally {
-            setIsAuthenticating(false);
+    const onSubmit = async ({ email, password }) => {
+        const result = await login(email, password);
+        if (result?.success) {
+            // Перенаправление будет обработано в App.jsx
+        } else {
+            throw new Error("Неверные учетные данные");
         }
     };
-
 
     return (
-        <div className="flex min-h-screen">
-            {/* Левая панель - изображение ??? */}
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden left-panel">
-                <div className="absolute inset-0 bg-black/20"></div>
-                <div className="relative z-10">
-                    <div className="max-w-[27rem] h-full flex flex-col pt-10 pb-32 px-12 justify-between text-gray-100 [text-shadow:0_1px_2px_rgba(0,0,0,0.4),0_0_20px_rgba(255,255,255,0.1)]">
-                        <h1 className="text-5xl font-extrabold mb-6 tracking-[0.75rem]">TTK</h1>
-                        <p className="text-xl mb-4">
-                                Войдите в свой аккаунт, чтобы продолжить работу
-                        </p>
-                    </div>
-                </div>
-                <div className="absolute bottom-6 px-12 text-sm flex justify-between w-full text-gray-100 [text-shadow:0_1px_2px_rgba(0,0,0,0.4),0_0_20px_rgba(255,255,255,0.1)]">
-                    <p>© 2025 RKSI Hack</p>
-                    <p><span className="uppercase text-[0.7rem]">asyncore</span> powered</p>
-                </div>
+        <AuthLayout
+            title="Войдите в свой аккаунт"
+            subtitle="Введите свои учетные данные"
+            desc="Войдите в свой аккаунт, чтобы продолжить работу"
+            icon={LogIn}
+        >
+            <form onSubmit={(e) => handleSubmit(e, onSubmit)} className="space-y-4">
+                <FormField
+                    id="email"
+                    label="Email"
+                    type="email"
+                    placeholder="Введите email"
+                    value={email}
+                    onChange={(value) => updateField("email", value)}
+                    error={errors.email}
+                />
+
+                <FormField
+                    id="password"
+                    label="Пароль"
+                    type="password"
+                    placeholder="Введите пароль"
+                    value={password}
+                    onChange={(value) => updateField("password", value)}
+                    error={errors.password}
+                />
+
+                <SubmitButton
+                    isLoading={isSubmitting}
+                    loadingText="Вход..."
+                    defaultText="Войти"
+                    icon={LogIn}
+                />
+            </form>
+
+            <div className="mt-6 text-center">
+                <Button type="button" asChild variant="link" size="sm" className="text-blue-600">
+                    <Link to="/register">Нет аккаунта? Зарегистрироваться</Link>
+                </Button>
             </div>
-
-            {/* Правая панель - форма */}
-            <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
-                <div className="w-full max-w-md">
-                    <Card className="border-none shadow-xl">
-                        <CardHeader className="text-center space-y-1">
-                            <div className="flex justify-center mb-2">
-                                <div className="w-12 h-12 rounded-full flex items-center justify-center">
-                                    <LogIn className="h-6 w-6" />
-                                </div>
-                            </div>
-                            <CardTitle className="text-2xl">
-                                Вход в систему
-                            </CardTitle>
-                            <p className="text-muted-foreground">
-                                Введите свои учетные данные
-                            </p>
-                        </CardHeader>
-
-                        <CardContent>
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input
-                                        size="sm"
-                                        id="email"
-                                        type="email"
-                                        placeholder="Введите email"
-                                        value={email}
-                                        onChange={(e) => {
-                                            setEmail(e.target.value);
-                                            if (errors.email) setErrors({...errors, email: ""});
-                                        }}
-                                        className={errors.email ? "border-red-500" : ""}
-                                    />
-                                    {errors.email && (
-                                        <p className="text-sm text-red-500 flex items-center gap-1">
-                                            <AlertCircle className="h-3 w-3" />
-                                            {errors.email}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="password">Пароль</Label>
-                                    <Input
-                                        id="password"
-                                        type="password"
-                                        placeholder="Введите пароль"
-                                        value={password}
-                                        onChange={(e) => {
-                                            setPassword(e.target.value);
-                                            if (errors.password) setErrors({...errors, password: ""});
-                                        }}
-                                        className={errors.password ? "border-red-500" : ""}
-                                        size="sm"
-                                    />
-                                    {errors.password && (
-                                        <p className="text-sm text-red-500 flex items-center gap-1">
-                                            <AlertCircle className="h-3 w-3" />
-                                            {errors.password}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <Button
-                                    type="submit"
-                                    className="w-full h-11 select-none text-white"
-                                    disabled={isAuthenticating}
-                                    size="sm"
-                                    variant="default"
-                                >
-                                    {isAuthenticating ? (
-                                        <>
-                                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                                            Вход...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <LogIn className="mr-2 h-4 w-4" />
-                                            Войти
-                                        </>
-                                    )}
-                                </Button>
-                            </form>
-
-                            <div className="mt-6 text-center">
-                                <Button
-                                    type="button"
-                                    asChild
-                                    variant="link"
-                                    size="sm"
-                                    className="text-blue-600"
-                                >
-                                    <Link to="/register">
-                                        Нет аккаунта? Зарегистрироваться
-                                    </Link>
-                                </Button>
-                            </div>
-
-                            <p className="text-xs text-muted-foreground mt-4 text-center">
-                                Ваши данные защищены шифрованием и никогда не передаются третьим лицам.
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-        </div>
+        </AuthLayout>
     );
 };
 

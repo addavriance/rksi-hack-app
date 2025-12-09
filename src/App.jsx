@@ -8,6 +8,7 @@ import {Loader2} from "lucide-react";
 import {useEffect} from "react";
 import {redirectTo} from "@/lib/utils";
 import './App.css';
+import EventsPage from "@/pages/EventsPage.jsx";
 
 const isProtectedPath = () => {
     return !(document.location.pathname.includes('/login')
@@ -27,7 +28,7 @@ function App() {
 
     return (
         <>
-            {(isLoading || !isAuthenticated && isProtectedPath()) && (
+            {((isLoading || !isAuthenticated) && isProtectedPath()) && (
                 <div className="text-center py-12 flex justify-center gap-2">
                     <Loader2 className="animate-spin"/>
                 </div>
@@ -36,7 +37,8 @@ function App() {
                     {/*<Header/>*/}
                     <Routes>
                         <Route path="/" element={<Navigate to="/login" replace/>}/>
-                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="login" element={<LoginPage />} />
+                        <Route path="events" element={<EventsPage />} />
                         <Route path="/register" element={<RegisterPage />} />
                         <Route path="/verify" element={<VerificationPage />} />
                         {/*<Route path="/posts" element={<PostsPage />} />*/}

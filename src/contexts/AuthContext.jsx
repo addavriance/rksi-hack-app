@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 const AuthContext = createContext({
     user: null,
-    loading: true,
+    isLoading: true,
     isAuthenticated: false,
     login: async () => {},
     register: async () => {},
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
             if (result && result.login_session_token && result.login_session_uid) {
                 // Получаем данные пользователя после успешного входа
                 const userData = await api.getActiveLogin();
-                
+
                 setUser({
                     email: userData?.email || email,
                     full_name: userData?.full_name,
@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         user,
-        loading,
+        isLoading: loading,
         isAuthenticated: !!user,
         login,
         register,
