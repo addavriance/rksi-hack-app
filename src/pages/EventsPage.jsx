@@ -29,6 +29,7 @@ const EventsPage = () => {
             id: event.id,
             title: event.name,
             description: event.short_description || event.description,
+            fullDescription: event.description, // Полное описание для popover
             image: event.image_url,
             startDate: event.starts_at,
             endDate: event.ends_at,
