@@ -21,6 +21,7 @@ export default {
                     800: '#8b0000',
                     900: '#5d0000',
                     DEFAULT: '#d32f2f',
+                    foreground: '#ffffff',
                 },
                 ttk: {
                     red: '#d32f2f',
