@@ -41,15 +41,15 @@ const UserManagement = ({ searchQuery }) => {
     };
 
     const roleColors = {
-        admin: "bg-purple-100 text-purple-800",
-        user: "bg-blue-100 text-blue-800",
-        moderator: "bg-green-100 text-green-800",
+        ADMIN: "bg-red-100 text-red-800 hover:bg-red-200",
+        USER: "bg-blue-100 text-blue-800 hover:bg-blue-200",
+        MODERATOR: "bg-purple-100 text-purple-800 hover:bg-purple-200", // а будет ли?
     };
 
     const statusColors = {
-        active: "bg-green-100 text-green-800 hover:bg-green-100",
-        inactive: "bg-gray-100 text-gray-800 hover:bg-gray-100",
-        deleted: "bg-red-100 text-red-800 hover:bg-red-100",
+        active: "bg-green-100 text-green-800 hover:bg-green-200",
+        inactive: "bg-gray-100 text-gray-800 hover:bg-gray-200",
+        deleted: "bg-red-100 text-red-800 hover:bg-red-200",
     };
 
     return (
@@ -73,7 +73,7 @@ const UserManagement = ({ searchQuery }) => {
                                 <TableCell className="font-medium">{user.full_name}</TableCell>
                                 <TableCell>{user.email}</TableCell>
                                 <TableCell>
-                                    <Badge className={roleColors[user.role]}>
+                                    <Badge className={cn(roleColors[user.role], "select-none")}>
                                         {user.role === "ADMIN" ? "Администратор" : "Пользователь"}
                                     </Badge>
                                 </TableCell>

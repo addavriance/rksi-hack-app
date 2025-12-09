@@ -116,21 +116,21 @@ const EventManagement = ({ searchQuery }) => {
         switch (status) {
             case "active":
                 return (
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-100 select-none">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200 select-none">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Активное
                     </Badge>
                 );
             case "past":
                 return (
-                    <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100 select-none">
+                    <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200 select-none">
                         <Clock className="h-3 w-3 mr-1" />
                         Прошедшее
                     </Badge>
                 );
             case "rejected":
                 return (
-                    <Badge className="bg-red-100 text-red-800 hover:bg-red-100 select-none">
+                    <Badge className="bg-red-100 text-red-800 hover:bg-red-200 select-none">
                         <XCircle className="h-3 w-3 mr-1" />
                         Отклонено
                     </Badge>
