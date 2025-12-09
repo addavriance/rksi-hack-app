@@ -35,16 +35,6 @@ const AdminPage = () => {
                                 Управление пользователями и событиями
                             </p>
                         </div>
-                        <div className="flex gap-3">
-                            <Button variant="outline">
-                                <BarChart3 className="mr-2 h-4 w-4" />
-                                Аналитика
-                            </Button>
-                            <Button>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Создать событие
-                            </Button>
-                        </div>
                     </div>
 
                     {/* Статистика */}

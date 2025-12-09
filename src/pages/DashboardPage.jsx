@@ -53,65 +53,6 @@ const DashboardPage = () => {
                 </div>
             </div>
 
-            {/* Статистика */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground dark:text-gray-400">Все события</p>
-                                <p className="text-3xl font-bold dark:text-white">{stats.totalEvents}</p>
-                            </div>
-                            <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                                <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground dark:text-gray-400">Активные</p>
-                                <p className="text-3xl font-bold dark:text-white">{stats.activeEvents}</p>
-                            </div>
-                            <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/30">
-                                <Clock className="h-6 w-6 text-green-600 dark:text-green-400" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground dark:text-gray-400">Вы участвуете</p>
-                                <p className="text-3xl font-bold dark:text-white">{stats.myEvents}</p>
-                            </div>
-                            <div className="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                                <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-muted-foreground">Предстоящие</p>
-                                <p className="text-3xl font-bold">{stats.upcomingEvents}</p>
-                            </div>
-                            <div className="p-3 rounded-lg bg-orange-100 dark:bg-orange-900/30">
-                                <TrendingUp className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
             {/* Основные разделы */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Ближайшие события */}
