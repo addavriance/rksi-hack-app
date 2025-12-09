@@ -63,6 +63,32 @@ class API {
     }
 
     /**
+     * Запрос на восстановление пароля
+     * @param {string} email - Email пользователя
+     * @returns {Promise<{}>} - Пустой объект при успехе
+     */
+    async recoveryRequest(email) {
+        const response = await this.apiClient.post('/login/recovery', {
+            email
+        });
+        return response.data;
+    }
+
+    /**
+     * Сброс пароля
+     * @param {string} token - Токен восстановления
+     * @param {string} password - Новый пароль
+     * @returns {Promise<{}>} - Пустой объект при успехе
+     */
+    async resetPassword(token, password) {
+        const response = await this.apiClient.post('/login/recovery/submit', {
+            token,
+            password
+        });
+        return response.data;
+    }
+
+    /**
      * Верификация регистрации
      * @param {string} token - Токен верификации
      * @param {number} code - Код верификации
@@ -96,7 +122,7 @@ class API {
 
     /**
      * Получение информации о текущем пользователе
-     * @returns {Promise<{email: string, full_name: string}>} - Содержит email и full_name текущего пользователя
+     * @returns {Promise<{email: string, full_name: string, role: "USER" | "ADMIN"}>} - Содержит email и full_name текущего пользователя
      */
     async getActiveLogin() {
         const response = await this.apiClient.get('/login');

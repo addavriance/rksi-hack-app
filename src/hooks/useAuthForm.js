@@ -29,7 +29,7 @@ export const useAuthForm = (initialState, validators) => {
     };
 
     const handleSubmit = async (event, submitFn) => {
-        event.preventDefault(); // Добавляем preventDefault
+        event.preventDefault();
 
         if (!validateForm()) {
             toast.error("Пожалуйста, исправьте ошибки в форме");

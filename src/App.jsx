@@ -10,12 +10,6 @@ import {redirectTo} from "@/lib/utils";
 import './App.css';
 import EventsPage from "@/pages/EventsPage.jsx";
 
-const isProtectedPath = () => {
-    return !(document.location.pathname.includes('/login')
-        || document.location.pathname.includes('/register')
-        || document.location.pathname.includes('/verify')
-        || document.location.pathname.includes('/404'))
-}
 
 function App() {
     const {isAuthenticated, isLoading} = useAuth();

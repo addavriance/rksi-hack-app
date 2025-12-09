@@ -6,6 +6,14 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
+export const isProtectedPath = () => {
+    return !(document.location.pathname.includes('/login')
+        || document.location.pathname.includes('/register')
+        || document.location.pathname.includes('/verify')
+        || document.location.pathname.includes('/recovery')
+        || document.location.pathname.includes('/404'))
+}
+
 export const redirectTo = (path: string) => {
     if (!document.location.pathname.includes(path)) {
         document.location.pathname = path

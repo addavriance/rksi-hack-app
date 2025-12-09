@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../api';
 import { toast } from 'sonner';
+import {useNavigate} from "react-router-dom";
+import {isProtectedPath, redirectTo} from "@/lib/utils.js";
 
 const AuthContext = createContext({
     user: null,
@@ -28,7 +30,6 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const initAuth = async () => {
             try {
-                // Проверяем, есть ли токены в localStorage
                 const token = localStorage.getItem('login_session_token');
                 const uid = localStorage.getItem('login_session_uid');
 
@@ -47,7 +48,7 @@ export const AuthProvider = ({ children }) => {
                         token,
                         uid,
                     });
-                    toast.success(`С возвращением, ${userData.full_name || userData.email}!`);
+                    isProtectedPath() && toast.success(`С возвращением, ${userData.full_name || userData.email}!`);
                 }
             } catch (error) {
                 console.error('Ошибка при проверке сессии:', error);
@@ -68,7 +69,6 @@ export const AuthProvider = ({ children }) => {
             const result = await api.login(email, password);
 
             if (result && result.login_session_token && result.login_session_uid) {
-                // Получаем данные пользователя после успешного входа
                 const userData = await api.getActiveLogin();
 
                 setUser({
@@ -78,6 +78,7 @@ export const AuthProvider = ({ children }) => {
                     uid: result.login_session_uid,
                 });
                 toast.success('Вход выполнен успешно!');
+                redirectTo('/events'); // не navigate потому что мы за пределами области хука
                 return { success: true };
             }
 
