@@ -7,9 +7,9 @@ import { ru } from "date-fns/locale";
 
 const EventCard = ({ event }) => {
     const statusColors = {
-        active: "bg-green-100 text-green-800 border-green-200",
-        past: "bg-gray-100 text-gray-800 border-gray-200",
-        rejected: "bg-red-100 text-red-800 border-red-200",
+        active: "bg-green-100 text-green-800 border-green-200 hover:bg-green-200",
+        past: "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200",
+        rejected: "bg-red-100 text-red-800 border-red-200 hover:bg-red-200",
     };
 
     const formatDate = (dateString) => {

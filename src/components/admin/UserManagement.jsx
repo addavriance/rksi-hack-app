@@ -41,15 +41,15 @@ const UserManagement = ({ searchQuery }) => {
     };
 
     const roleColors = {
-        ADMIN: "bg-red-100 text-red-800 hover:bg-red-200",
-        USER: "bg-blue-100 text-blue-800 hover:bg-blue-200",
-        MODERATOR: "bg-purple-100 text-purple-800 hover:bg-purple-200", // а будет ли?
+        ADMIN: "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-500/15 dark:text-red-400 dark:hover:bg-red-500/25",
+        USER: "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-500/15 dark:text-blue-400 dark:hover:bg-blue-500/25",
+        MODERATOR: "bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-500/15 dark:text-purple-400 dark:hover:bg-purple-500/25",
     };
 
     const statusColors = {
-        active: "bg-green-100 text-green-800 hover:bg-green-200",
-        inactive: "bg-gray-100 text-gray-800 hover:bg-gray-200",
-        deleted: "bg-red-100 text-red-800 hover:bg-red-200",
+        active: "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-500/20 dark:text-green-400 dark:hover:bg-green-500/30",
+        inactive: "bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-600/20 dark:text-gray-400 dark:hover:bg-gray-600/30",
+        deleted: "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500/30",
     };
 
     return (

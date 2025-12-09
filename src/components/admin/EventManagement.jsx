@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState} from "react";
 import {
     Table,
     TableBody,
@@ -7,10 +7,10 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import {Button} from "@/components/ui/button";
+import {Badge} from "@/components/ui/badge";
+import {Input} from "@/components/ui/input";
+import {Card, CardContent} from "@/components/ui/card";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -43,11 +43,11 @@ import {
     Image as ImageIcon,
     MapPin,
 } from "lucide-react";
-import { format } from "date-fns";
-import { ru } from "date-fns/locale";
-import { mockEvents } from "@/data/mockEvents";
+import {format} from "date-fns";
+import {ru} from "date-fns/locale";
+import {mockEvents} from "@/data/mockEvents";
 
-const EventManagement = ({ searchQuery }) => {
+const EventManagement = ({searchQuery}) => {
     const [events, setEvents] = useState(mockEvents);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [statusFilter, setStatusFilter] = useState("all");
@@ -72,7 +72,7 @@ const EventManagement = ({ searchQuery }) => {
     });
 
     const formatDate = (dateString) => {
-        return format(new Date(dateString), "dd MMMM yyyy, HH:mm", { locale: ru });
+        return format(new Date(dateString), "dd MMMM yyyy, HH:mm", {locale: ru});
     };
 
     const handleEdit = (event) => {
@@ -100,37 +100,43 @@ const EventManagement = ({ searchQuery }) => {
     const changeStatus = (eventId, newStatus) => {
         setEvents(
             events.map((event) =>
-                event.id === eventId ? { ...event, status: newStatus } : event
+                event.id === eventId ? {...event, status: newStatus} : event
             )
         );
     };
 
     const statusOptions = [
-        { value: "all", label: "Все статусы" },
-        { value: "active", label: "Активные", color: "bg-green-100 text-green-800" },
-        { value: "past", label: "Прошедшие", color: "bg-gray-100 text-gray-800" },
-        { value: "rejected", label: "Отклоненные", color: "bg-red-100 text-red-800" },
+        {value: "all", label: "Все статусы"},
+        {value: "active", label: "Активные", color: "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/30"},
+        {value: "past", label: "Прошедшие", color: "bg-gray-100 text-gray-800 dark:bg-gray-600/20 dark:text-gray-400 dark:border-gray-500/30"},
+        {value: "rejected", label: "Отклоненные", color: "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30"},
     ];
 
     const getStatusBadge = (status) => {
         switch (status) {
             case "active":
                 return (
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200 select-none">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200
+                          dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50
+                          select-none transition-colors duration-200">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Активное
                     </Badge>
                 );
             case "past":
                 return (
-                    <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200 select-none">
+                    <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200
+                          dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700
+                          select-none transition-colors duration-200">
                         <Clock className="h-3 w-3 mr-1" />
                         Прошедшее
                     </Badge>
                 );
             case "rejected":
                 return (
-                    <Badge className="bg-red-100 text-red-800 hover:bg-red-200 select-none">
+                    <Badge className="bg-red-100 text-red-800 hover:bg-red-200
+                          dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50
+                          select-none transition-colors duration-200">
                         <XCircle className="h-3 w-3 mr-1" />
                         Отклонено
                     </Badge>
@@ -153,7 +159,8 @@ const EventManagement = ({ searchQuery }) => {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Search
+                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
                                 <Input
                                     placeholder="Поиск событий..."
                                     className="pl-10 w-full md:w-64"
@@ -165,7 +172,7 @@ const EventManagement = ({ searchQuery }) => {
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="outline" className="flex items-center gap-2">
-                                        <Filter className="h-4 w-4" />
+                                        <Filter className="h-4 w-4"/>
                                         Статус:{" "}
                                         {statusOptions.find((opt) => opt.value === statusFilter)
                                             ?.label || "Все"}
@@ -180,8 +187,7 @@ const EventManagement = ({ searchQuery }) => {
                                         >
                                             {option.value !== "all" && (
                                                 <div
-                                                    className={`h-2 w-2 rounded-full ${option.color.split(" ")[0]
-                                                    }`}
+                                                    className={`h-2 w-2 rounded-full ${option.color}`}
                                                 />
                                             )}
                                             {option.label}
@@ -193,11 +199,11 @@ const EventManagement = ({ searchQuery }) => {
 
                         <div className="flex gap-3">
                             <Button variant="outline">
-                                <Download className="mr-2 h-4 w-4" />
+                                <Download className="mr-2 h-4 w-4"/>
                                 Экспорт
                             </Button>
                             <Button className="bg-primary hover:bg-primary/90">
-                                <Plus className="mr-2 h-4 w-4" />
+                                <Plus className="mr-2 h-4 w-4"/>
                                 Новое событие
                             </Button>
                         </div>
@@ -214,7 +220,7 @@ const EventManagement = ({ searchQuery }) => {
                                 <p className="text-sm text-muted-foreground">Всего событий</p>
                                 <p className="text-2xl font-bold">{events.length}</p>
                             </div>
-                            <Calendar className="h-8 w-8 text-blue-500/30" />
+                            <Calendar className="h-8 w-8 text-blue-500/30"/>
                         </div>
                     </CardContent>
                 </Card>
@@ -228,7 +234,7 @@ const EventManagement = ({ searchQuery }) => {
                                     {events.filter((e) => e.status === "active").length}
                                 </p>
                             </div>
-                            <CheckCircle className="h-8 w-8 text-green-500/30" />
+                            <CheckCircle className="h-8 w-8 text-green-500/30"/>
                         </div>
                     </CardContent>
                 </Card>
@@ -242,7 +248,7 @@ const EventManagement = ({ searchQuery }) => {
                                     {events.reduce((sum, e) => sum + e.participants, 0)}
                                 </p>
                             </div>
-                            <Users className="h-8 w-8 text-purple-500/30" />
+                            <Users className="h-8 w-8 text-purple-500/30"/>
                         </div>
                     </CardContent>
                 </Card>
@@ -260,7 +266,7 @@ const EventManagement = ({ searchQuery }) => {
                                     %
                                 </p>
                             </div>
-                            <Clock className="h-8 w-8 text-orange-500/30" />
+                            <Clock className="h-8 w-8 text-orange-500/30"/>
                         </div>
                     </CardContent>
                 </Card>
@@ -286,7 +292,7 @@ const EventManagement = ({ searchQuery }) => {
                                 <TableRow>
                                     <TableCell colSpan={7} className="text-center py-8">
                                         <div className="flex flex-col items-center">
-                                            <Calendar className="h-12 w-12 text-muted-foreground/50 mb-3" />
+                                            <Calendar className="h-12 w-12 text-muted-foreground/50 mb-3"/>
                                             <p className="text-muted-foreground">
                                                 События не найдены
                                             </p>
@@ -295,7 +301,7 @@ const EventManagement = ({ searchQuery }) => {
                                 </TableRow>
                             ) : (
                                 filteredEvents.map((event) => (
-                                    <TableRow key={event.id} className="hover:bg-gray-50/50">
+                                    <TableRow key={event.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-900">
                                         <TableCell>
                                             <div className="h-10 w-10 rounded overflow-hidden">
                                                 <img
@@ -354,32 +360,32 @@ const EventManagement = ({ searchQuery }) => {
                                                     size="sm"
                                                     onClick={() => showDetails(event)}
                                                 >
-                                                    <Eye className="h-4 w-4" />
+                                                    <Eye className="h-4 w-4"/>
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => handleEdit(event)}
                                                 >
-                                                    <Edit className="h-4 w-4" />
+                                                    <Edit className="h-4 w-4"/>
                                                 </Button>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="ghost" size="sm">
-                                                            <MoreVertical className="h-4 w-4" />
+                                                            <MoreVertical className="h-4 w-4"/>
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem
                                                             onClick={() => showDetails(event)}
                                                         >
-                                                            <Eye className="mr-2 h-4 w-4" />
+                                                            <Eye className="mr-2 h-4 w-4"/>
                                                             Просмотр
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             onClick={() => handleEdit(event)}
                                                         >
-                                                            <Edit className="mr-2 h-4 w-4" />
+                                                            <Edit className="mr-2 h-4 w-4"/>
                                                             Редактировать
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
@@ -392,12 +398,12 @@ const EventManagement = ({ searchQuery }) => {
                                                         >
                                                             {event.status === "active" ? (
                                                                 <>
-                                                                    <XCircle className="mr-2 h-4 w-4" />
+                                                                    <XCircle className="mr-2 h-4 w-4"/>
                                                                     Отклонить
                                                                 </>
                                                             ) : (
                                                                 <>
-                                                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                                                    <CheckCircle className="mr-2 h-4 w-4"/>
                                                                     Активировать
                                                                 </>
                                                             )}
@@ -406,7 +412,7 @@ const EventManagement = ({ searchQuery }) => {
                                                             className="text-red-600"
                                                             onClick={() => handleDelete(event)}
                                                         >
-                                                            <Trash2 className="mr-2 h-4 w-4" />
+                                                            <Trash2 className="mr-2 h-4 w-4"/>
                                                             Удалить
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
@@ -492,7 +498,7 @@ const EventManagement = ({ searchQuery }) => {
 
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
-                                        <Calendar className="h-5 w-5 text-muted-foreground" />
+                                        <Calendar className="h-5 w-5 text-muted-foreground"/>
                                         <div>
                                             <p className="font-medium">Дата начала</p>
                                             <p className="text-sm text-muted-foreground">
@@ -502,7 +508,7 @@ const EventManagement = ({ searchQuery }) => {
                                     </div>
 
                                     <div className="flex items-center gap-3">
-                                        <Clock className="h-5 w-5 text-muted-foreground" />
+                                        <Clock className="h-5 w-5 text-muted-foreground"/>
                                         <div>
                                             <p className="font-medium">Дата окончания</p>
                                             <p className="text-sm text-muted-foreground">
@@ -512,7 +518,7 @@ const EventManagement = ({ searchQuery }) => {
                                     </div>
 
                                     <div className="flex items-center gap-3">
-                                        <Users className="h-5 w-5 text-muted-foreground" />
+                                        <Users className="h-5 w-5 text-muted-foreground"/>
                                         <div>
                                             <p className="font-medium">Участники</p>
                                             <p className="text-sm text-muted-foreground">
@@ -523,7 +529,7 @@ const EventManagement = ({ searchQuery }) => {
                                     </div>
 
                                     <div className="flex items-center gap-3">
-                                        <MapPin className="h-5 w-5 text-muted-foreground" />
+                                        <MapPin className="h-5 w-5 text-muted-foreground"/>
                                         <div>
                                             <p className="font-medium">Место проведения</p>
                                             <p className="text-sm text-muted-foreground">
@@ -536,7 +542,7 @@ const EventManagement = ({ searchQuery }) => {
 
                             {/* Дополнительная информация */}
                             {selectedEvent.paymentInfo && (
-                                <div className="bg-blue-50 p-4 rounded-lg">
+                                <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
                                     <h4 className="font-medium mb-2">Информация об оплате</h4>
                                     <p className="text-sm text-muted-foreground">
                                         {selectedEvent.paymentInfo}
@@ -546,23 +552,23 @@ const EventManagement = ({ searchQuery }) => {
 
                             {/* Статистика */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                                <div className="text-center p-3 bg-gray-5 dark:bg-gray-900 rounded-lg">
                                     <p className="text-2xl font-bold">{selectedEvent.rating}</p>
                                     <p className="text-xs text-muted-foreground">Рейтинг</p>
                                 </div>
-                                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                                <div className="text-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                                     <p className="text-2xl font-bold">
                                         {selectedEvent.reviews}
                                     </p>
                                     <p className="text-xs text-muted-foreground">Отзывов</p>
                                 </div>
-                                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                                <div className="text-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                                     <p className="text-2xl font-bold">
                                         {getParticipantsPercentage(selectedEvent)}%
                                     </p>
                                     <p className="text-xs text-muted-foreground">Заполняемость</p>
                                 </div>
-                                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                                <div className="text-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                                     <p className="text-2xl font-bold">
                                         {selectedEvent.eventsParticipated || 0}
                                     </p>
