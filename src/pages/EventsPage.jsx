@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search, Calendar, Users, Filter, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import EventCard from "@/components/events/EventCard";
@@ -26,6 +27,8 @@ const EventsPage = () => {
     const [pastEvents, setPastEvents] = useState([]); // Прошедшие события
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+    const [eventToCancel, setEventToCancel] = useState(null);
 
     // Маппинг данных из EventCardDTO к формату компонентов
     const mapEventData = (event) => {
@@ -182,6 +185,22 @@ const EventsPage = () => {
 
     // Обработка изменения участия (оптимистичное обновление)
     const handleParticipationChange = (eventId, newStatus) => {
+        // Если пытаемся отменить участие, показываем диалог подтверждения
+        if (newStatus === 'NONE') {
+            const event = allEvents.find(e => e.id === eventId);
+            if (event && event.isParticipating) {
+                setEventToCancel({ id: eventId, title: event.title });
+                setCancelDialogOpen(true);
+                return;
+            }
+        }
+
+        // Для участия в событии обновляем сразу
+        applyParticipationChange(eventId, newStatus);
+    };
+
+    // Применение изменения участия (оптимистичное обновление)
+    const applyParticipationChange = (eventId, newStatus) => {
         const isParticipating = newStatus === 'PARTICIPATING';
         
         // Функция для обновления события в массиве
@@ -210,6 +229,32 @@ const EventsPage = () => {
         setActiveEvents(prev => prev.map(updateEvent));
         setPastEvents(prev => prev.map(updateEvent));
         setEvents(prev => prev.map(updateEvent));
+    };
+
+    // Подтверждение отмены участия с API вызовом
+    const handleConfirmCancel = async () => {
+        if (!eventToCancel) return;
+
+        const eventId = eventToCancel.id;
+        const event = allEvents.find(e => e.id === eventId);
+        const previousStatus = event?.participation_status;
+
+        // Оптимистичное обновление
+        applyParticipationChange(eventId, 'NONE');
+
+        try {
+            await api.updateParticipation(eventId, { status: 'NONE' });
+            toast.success('Вы отменили участие в событии');
+            setCancelDialogOpen(false);
+            setEventToCancel(null);
+        } catch (error) {
+            // Откат изменений при ошибке
+            if (previousStatus) {
+                applyParticipationChange(eventId, previousStatus);
+            }
+            const errorMessage = error.response?.data?.detail || error.message || 'Ошибка при отмене участия';
+            toast.error(errorMessage);
+        }
     };
 
     return (
@@ -368,6 +413,36 @@ const EventsPage = () => {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Диалог подтверждения отмены участия */}
+            <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Отменить участие?</DialogTitle>
+                        <DialogDescription>
+                            Вы уверены, что хотите отменить участие в событии "{eventToCancel?.title}"? 
+                            Это действие можно будет отменить, записавшись на событие снова.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button 
+                            variant="outline" 
+                            onClick={() => {
+                                setCancelDialogOpen(false);
+                                setEventToCancel(null);
+                            }}
+                        >
+                            Нет, оставить
+                        </Button>
+                        <Button 
+                            variant="destructive" 
+                            onClick={handleConfirmCancel}
+                        >
+                            Да, отменить участие
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
