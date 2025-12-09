@@ -1,7 +1,5 @@
-// components/events/EventFilters.jsx
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
@@ -164,7 +162,7 @@ const EventFilters = ({ filters, onFilterChange }) => {
                             <SelectValue placeholder="Любое количество" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="any">Любое количество</SelectItem>
+                            <SelectItem value={null}>Любое количество</SelectItem>
                             <SelectItem value="10">До 10 человек</SelectItem>
                             <SelectItem value="20">До 20 человек</SelectItem>
                             <SelectItem value="50">До 50 человек</SelectItem>

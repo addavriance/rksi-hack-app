@@ -1,4 +1,3 @@
-// pages/EventsPage.jsx
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -134,7 +133,7 @@ const EventsPage = () => {
                     <CardContent className="p-0">
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                             <div className="border-b">
-                                <div className="px-6">
+                                <div className="px-6 py-2">
                                     <TabsList className="w-full md:w-auto">
                                         <TabsTrigger value="my-events" className="flex-1 md:flex-none">
                                             Мои события ({mockEvents.filter(e => e.isParticipating).length})
