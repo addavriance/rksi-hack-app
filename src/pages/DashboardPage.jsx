@@ -86,12 +86,12 @@ const DashboardPage = () => {
                                     <div className="flex items-center justify-between md:flex-col md:items-end md:text-right gap-2 md:gap-0">
                                         <div className="text-xs md:text-sm font-medium">{event.participants} участников</div>
                                         {event.isParticipating ? (
-                                            <div className="text-xs md:text-sm text-green-600 dark:text-green-400 flex items-center">
+                                            <div className="text-xs md:text-sm text-green-600 dark:text-green-400 flex items-center mt-6">
                                                 <CheckCircle className="h-3 w-3 mr-1" />
                                                 Вы участвуете
                                             </div>
                                         ) : (
-                                            <Button size="sm" asChild className="min-h-[40px] md:min-h-[32px] text-xs md:text-sm px-4">
+                                            <Button size="sm" asChild className="min-h-[40px] md:min-h-[32px] text-xs md:text-sm px-4 mt-6">
                                                 <Link to={`/events/${event.id}`}>Участвовать</Link>
                                                 {/*заглушка, но тут по логике нужен хендлер просто который
                                                 оптимистично обновит состояние на то что мы участвуем и направит запрос на бек*/}
