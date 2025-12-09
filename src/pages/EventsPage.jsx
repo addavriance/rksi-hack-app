@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Calendar, Users, Filter } from "lucide-react";
+import { Search, Calendar, Users, Filter, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import EventCard from "@/components/events/EventCard";
 import EventFilters from "@/components/events/EventFilters";
-import { mockEvents } from "@/data/mockEvents";
+import { api } from "@/api.js";
 
 const EventsPage = () => {
     const [activeTab, setActiveTab] = useState("my-events");
@@ -18,29 +19,130 @@ const EventsPage = () => {
         participants: null,
     });
     const [showFilters, setShowFilters] = useState(false);
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const filteredEvents = mockEvents.filter(event => {
-        if (activeTab === "active") {
-            if (event.status !== "active") return false;
-        } else if (activeTab === "my-events") {
-            if (!event.isParticipating) return false;
-        } else if (activeTab === "past") {
-            if (event.status !== "past") return false;
+    // Маппинг данных из EventCardDTO к формату компонентов
+    const mapEventData = (event) => {
+        return {
+            id: event.id,
+            title: event.name,
+            description: event.short_description || event.description,
+            image: event.image_url,
+            startDate: event.starts_at,
+            endDate: event.ends_at,
+            participants: event.participants_count,
+            maxParticipants: event.max_participants_count,
+            status: event.status.toLowerCase(), // ACTIVE → active, PAST → past, REJECTED → rejected
+            isParticipating: event.participation_status === 'PARTICIPATING',
+            location: event.location,
+            participation_status: event.participation_status, // Сохраняем для обновления
+        };
+    };
+
+    // Загрузка событий с сервера
+    const loadEvents = async () => {
+        setLoading(true);
+        setError(null);
+        
+        try {
+            let apiParams = {};
+            
+            // Для вкладки "active" и "past" загружаем с соответствующим статусом
+            if (activeTab === "active") {
+                apiParams.status = "ACTIVE";
+            } else if (activeTab === "past") {
+                apiParams.status = "PAST";
+            }
+            // Для "my-events" загружаем все события (без фильтра), фильтрация будет на клиенте
+            
+            const data = await api.getEventCards(apiParams);
+            const mappedEvents = data.map(mapEventData);
+            setEvents(mappedEvents);
+        } catch (err) {
+            const errorMessage = err.response?.data?.detail || err.message || 'Ошибка при загрузке событий';
+            setError(errorMessage);
+            toast.error(errorMessage);
+            setEvents([]);
+        } finally {
+            setLoading(false);
         }
+    };
 
+    // Загрузка данных при монтировании и изменении вкладки
+    useEffect(() => {
+        loadEvents();
+    }, [activeTab]);
+
+    // Фильтрация событий
+    const filteredEvents = events.filter(event => {
+        // Для вкладки "my-events" показываем только события, где пользователь участвует
+        if (activeTab === "my-events") {
+            if (!event.isParticipating) return false;
+        }
+        // Для "active" и "past" фильтрация уже сделана на сервере
+
+        // Локальная фильтрация по поиску
         if (searchQuery && !event.title.toLowerCase().includes(searchQuery.toLowerCase())) {
             return false;
         }
 
-        if (filters.category && event.category !== filters.category) return false;
+        // Фильтрация по категории (если будет в данных)
+        if (filters.category && event.category !== filters.category) {
+            return false;
+        }
+
+        // Фильтрация по датам
+        if (filters.dateFrom) {
+            const eventDate = new Date(event.startDate);
+            const filterDate = new Date(filters.dateFrom);
+            if (eventDate < filterDate) return false;
+        }
+
+        if (filters.dateTo) {
+            const eventDate = new Date(event.startDate);
+            const filterDate = new Date(filters.dateTo);
+            if (eventDate > filterDate) return false;
+        }
+
+        // Фильтрация по количеству участников
+        if (filters.participants) {
+            const maxParticipants = parseInt(filters.participants);
+            if (filters.participants === "200") {
+                if (event.participants <= 100) return false;
+            } else {
+                if (event.participants > maxParticipants) return false;
+            }
+        }
 
         return true;
     });
 
+    // Статистика
     const stats = {
-        total: mockEvents.length,
-        participating: mockEvents.filter(e => e.isParticipating).length,
-        upcoming: mockEvents.filter(e => e.status === "active").length,
+        total: events.length,
+        participating: events.filter(e => e.isParticipating).length,
+        upcoming: events.filter(e => e.status === "active").length,
+    };
+
+    // Обработка изменения участия (оптимистичное обновление)
+    const handleParticipationChange = (eventId, newStatus) => {
+        setEvents(prevEvents => 
+            prevEvents.map(event => {
+                if (event.id === eventId) {
+                    return {
+                        ...event,
+                        isParticipating: newStatus === 'PARTICIPATING',
+                        participation_status: newStatus,
+                        participants: newStatus === 'PARTICIPATING' 
+                            ? event.participants + 1 
+                            : Math.max(0, event.participants - 1)
+                    };
+                }
+                return event;
+            })
+        );
     };
 
     return (
@@ -136,13 +238,13 @@ const EventsPage = () => {
                                 <div className="px-6 py-2">
                                     <TabsList className="w-full md:w-auto">
                                         <TabsTrigger value="my-events" className="flex-1 md:flex-none">
-                                            Мои события ({mockEvents.filter(e => e.isParticipating).length})
+                                            Мои события ({stats.participating})
                                         </TabsTrigger>
                                         <TabsTrigger value="active" className="flex-1 md:flex-none">
-                                            Активные ({mockEvents.filter(e => e.status === "active").length})
+                                            Активные ({stats.upcoming})
                                         </TabsTrigger>
                                         <TabsTrigger value="past" className="flex-1 md:flex-none">
-                                            Прошедшие ({mockEvents.filter(e => e.status === "past").length})
+                                            Прошедшие ({events.filter(e => e.status === "past").length})
                                         </TabsTrigger>
                                     </TabsList>
                                 </div>
@@ -150,7 +252,25 @@ const EventsPage = () => {
 
                             {["my-events", "active", "past"].map(tab => (
                                 <TabsContent key={tab} value={tab} className="m-0 p-6">
-                                    {filteredEvents.length === 0 ? (
+                                    {loading ? (
+                                        <div className="text-center py-12">
+                                            <Loader2 className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4 animate-spin" />
+                                            <p className="text-muted-foreground">Загрузка событий...</p>
+                                        </div>
+                                    ) : error ? (
+                                        <div className="text-center py-12">
+                                            <Calendar className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                                            <h3 className="text-lg font-medium mb-2">Ошибка загрузки</h3>
+                                            <p className="text-muted-foreground">{error}</p>
+                                            <Button 
+                                                variant="outline" 
+                                                className="mt-4"
+                                                onClick={loadEvents}
+                                            >
+                                                Попробовать снова
+                                            </Button>
+                                        </div>
+                                    ) : filteredEvents.length === 0 ? (
                                         <div className="text-center py-12">
                                             <Calendar className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
                                             <h3 className="text-lg font-medium mb-2">
@@ -167,7 +287,11 @@ const EventsPage = () => {
                                     ) : (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredEvents.map(event => (
-                                                <EventCard key={event.id} event={event} />
+                                                <EventCard 
+                                                    key={event.id} 
+                                                    event={event}
+                                                    onParticipationChange={handleParticipationChange}
+                                                />
                                             ))}
                                         </div>
                                     )}
