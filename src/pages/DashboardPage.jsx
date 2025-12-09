@@ -6,9 +6,10 @@ import {
     Clock, CheckCircle, AlertCircle, Star
 } from "lucide-react";
 import { mockEvents } from "@/data/mockEvents";
-import { mockUsers } from "@/data/mockUsers";
+import {useAuth} from "@/contexts/AuthContext.jsx";
 
 const DashboardPage = () => {
+    const {user} = useAuth();
     // Статистика
     const stats = {
         totalEvents: mockEvents.length,
@@ -21,7 +22,6 @@ const DashboardPage = () => {
     };
 
     // Ближайшие события
-    console.log(mockEvents)
     const upcomingEvents = mockEvents
         .filter(e => e.status === "active" && new Date(e.startDate) > new Date())
         .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
@@ -43,10 +43,12 @@ const DashboardPage = () => {
                             Здесь вы можете управлять своими событиями и быть в курсе всего происходящего
                         </p>
                     </div>
-                    <Button className="mt-4 md:mt-0">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        Создать событие
-                    </Button>
+                    {user.role === "ADMIN" && (
+                        <Button className="mt-4 md:mt-0">
+                            <Calendar className="mr-2 h-4 w-4" />
+                            Создать событие
+                        </Button>
+                    )}
                 </div>
             </div>
 
