@@ -276,50 +276,24 @@ const Sidebar = () => {
                 </div>
             </div>
 
-            {/* Мобильная нижняя навигация - видна только на мобильных */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t dark:border-gray-800 z-50 safe-area-inset-bottom">
-                <nav className="flex items-center justify-around px-2 py-2">
-                    {navItems.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = location.pathname === item.path;
-
-                        return (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                className={`flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs transition-colors min-w-[60px] ${
-                                    isActive
-                                        ? "text-primary"
-                                        : "text-gray-600 dark:text-gray-400"
-                                }`}
-                            >
-                                <div className="relative">
-                                    <Icon className="h-5 w-5" />
-                                    {item.badge && (
-                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                                            {item.badge}
-                                        </span>
-                                    )}
-                                </div>
-                                <span className="text-[10px] font-medium">{item.label}</span>
-                            </Link>
-                        );
-                    })}
-                    {/* Кнопка профиля на мобильных */}
+            {/* Мобильный заголовок - виден только на мобильных */}
+            <div className="md:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b dark:border-gray-800 z-50">
+                <div className="flex items-center justify-between px-4 py-3">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Calendar className="h-5 w-5 text-primary" />
+                        </div>
+                        <h2 className="font-bold text-gray-900 dark:text-white text-base">TTK Афиша</h2>
+                    </div>
                     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                         <PopoverTrigger asChild>
-                            <button
-                                className={`flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs transition-colors min-w-[60px] ${
-                                    popoverOpen
-                                        ? "text-primary"
-                                        : "text-gray-600 dark:text-gray-400"
-                                }`}
-                            >
-                                <User className="h-5 w-5" />
-                                <span className="text-[10px] font-medium">Профиль</span>
+                            <button className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <div className="h-9 w-9 rounded-full bg-gradient-to-r from-primary to-primary/70 flex items-center justify-center text-white font-semibold text-xs">
+                                    {getInitials(user?.full_name || "П")}
+                                </div>
                             </button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-screen max-w-sm mb-16 p-0" align="center" side="top">
+                        <PopoverContent className="w-screen max-w-sm p-0" align="end" side="bottom">
                             {/* Заголовок профиля */}
                             <div className="p-4 border-b dark:border-gray-700">
                                 <div className="flex items-center gap-3">
@@ -405,6 +379,57 @@ const Sidebar = () => {
                             </div>
                         </PopoverContent>
                     </Popover>
+                </div>
+            </div>
+
+            {/* Мобильная нижняя навигация - видна только на мобильных */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t dark:border-gray-800 z-50 safe-area-inset-bottom">
+                <nav className="flex items-center justify-around px-2 py-2">
+                    {navItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = location.pathname === item.path;
+
+                        return (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs transition-colors min-w-[60px] ${
+                                    isActive
+                                        ? "text-primary"
+                                        : "text-gray-600 dark:text-gray-400"
+                                }`}
+                            >
+                                <div className="relative">
+                                    <Icon className="h-5 w-5" />
+                                    {item.badge && (
+                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                                            {item.badge}
+                                        </span>
+                                    )}
+                                </div>
+                                <span className="text-[10px] font-medium">{item.label}</span>
+                            </Link>
+                        );
+                    })}
+                    {isAdmin && adminItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = location.pathname === item.path;
+
+                        return (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                className={`flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs transition-colors min-w-[60px] ${
+                                    isActive
+                                        ? "text-primary"
+                                        : "text-gray-600 dark:text-gray-400"
+                                }`}
+                            >
+                                <Icon className="h-5 w-5" />
+                                <span className="text-[10px] font-medium">{item.label}</span>
+                            </Link>
+                        );
+                    })}
                 </nav>
             </div>
         </>
