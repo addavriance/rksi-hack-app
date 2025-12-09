@@ -13,8 +13,8 @@ import {
     DropdownMenuItem, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { mockUsers } from "@/data/mockUsers";
-import {Card, CardContent} from "@/components/ui/card.js";
-import {cn} from "@/lib/utils.js";
+import {Card, CardContent} from "@/components/ui/card.tsx";
+import {cn} from "@/lib/utils.ts";
 
 const UserManagement = ({ searchQuery }) => {
     const [users, setUsers] = useState(mockUsers);

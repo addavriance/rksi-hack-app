@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../api';
 import { toast } from 'sonner';
 import {useNavigate} from "react-router-dom";
-import {isProtectedPath, redirectTo} from "@/lib/utils.js";
+import {isProtectedPath, redirectTo} from "@/lib/utils.ts";
 
 const AuthContext = createContext({
     user: null,
