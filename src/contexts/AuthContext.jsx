@@ -40,13 +40,14 @@ export const AuthProvider = ({ children }) => {
                 // Пробуем получить информацию о текущем пользователе
                 const userData = await api.getActiveLogin();
 
-                if (userData && userData.username) {
+                if (userData && userData.email) {
                     setUser({
-                        username: userData.username,
+                        email: userData.email,
+                        full_name: userData.full_name,
                         token,
                         uid,
                     });
-                    toast.success(`С возвращением, ${userData.username}!`);
+                    toast.success(`С возвращением, ${userData.full_name || userData.email}!`);
                 }
             } catch (error) {
                 console.error('Ошибка при проверке сессии:', error);
@@ -62,13 +63,17 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     // Логин
-    const login = async (username, password) => {
+    const login = async (email, password) => {
         try {
-            const result = await api.login(username, password);
+            const result = await api.login(email, password);
 
             if (result && result.login_session_token && result.login_session_uid) {
+                // Получаем данные пользователя после успешного входа
+                const userData = await api.getActiveLogin();
+                
                 setUser({
-                    username,
+                    email: userData?.email || email,
+                    full_name: userData?.full_name,
                     token: result.login_session_token,
                     uid: result.login_session_uid,
                 });
@@ -87,11 +92,10 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Регистрация
-    const register = async (username, password) => {
+    const register = async (email, password, full_name) => {
         try {
-            const result = await api.register(username, password);
-            toast.success('Регистрация успешна! Теперь войдите в систему.');
-            return { success: true };
+            const result = await api.register(email, password, full_name);
+            return { success: true, data: result };
         } catch (error) {
             const errorMessage = error.response?.data?.detail ||
                 error.message ||
@@ -112,9 +116,9 @@ export const AuthProvider = ({ children }) => {
     const checkSession = async () => {
         try {
             const userData = await api.getActiveLogin();
-            if (userData && userData.username) {
-                toast.success(`Текущий пользователь: ${userData.username}`);
-                return { success: true, username: userData.username };
+            if (userData && userData.email) {
+                toast.success(`Текущий пользователь: ${userData.full_name || userData.email}`);
+                return { success: true, email: userData.email, full_name: userData.full_name };
             }
         } catch (error) {
             toast.error('Нет активной сессии');

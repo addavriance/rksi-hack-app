@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import VerificationPage from "./pages/VerificationPage";
 // import { Header } from "@/components/Header";
 import {useAuth} from "@/contexts/AuthContext";
 import {Loader2} from "lucide-react";
@@ -10,6 +12,7 @@ import './App.css';
 const isProtectedPath = () => {
     return !(document.location.pathname.includes('/login')
         || document.location.pathname.includes('/register')
+        || document.location.pathname.includes('/verify')
         || document.location.pathname.includes('/404'))
 }
 
@@ -34,7 +37,8 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Navigate to="/login" replace/>}/>
                         <Route path="/login" element={<LoginPage />} />
-                        {/*<Route path="/register" element={<RegisterPage />} />*/}
+                        <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/verify" element={<VerificationPage />} />
                         {/*<Route path="/posts" element={<PostsPage />} />*/}
                         {/*<Route path="/posts/create" element={<CreatePostPage />} />*/}
                         {/*<Route path="/posts/:id" element={<PostDetailPage />} />*/}
