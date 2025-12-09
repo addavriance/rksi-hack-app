@@ -77,6 +77,24 @@ class API {
     }
 
     /**
+     * Повторная отправка кода верификации (заглушка)
+     * @param {string} token - Токен верификации
+     * @returns {Promise<{}>} - Пустой объект при успехе
+     */
+    async resendVerificationCode(token) {
+        // TODO: Заменить на реальный endpoint, когда он будет доступен
+        // const response = await this.apiClient.post('/register/resend', { token });
+        // return response.data;
+        
+        // Заглушка: симулируем задержку сети
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({});
+            }, 500);
+        });
+    }
+
+    /**
      * Получение информации о текущем пользователе
      * @returns {Promise<{email: string, full_name: string}>} - Содержит email и full_name текущего пользователя
      */

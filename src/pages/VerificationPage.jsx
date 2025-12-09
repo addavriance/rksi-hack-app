@@ -1,14 +1,16 @@
 // VerificationPage.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { LoaderCircle, Mail, AlertCircle, CheckCircle2 } from "lucide-react";
+import { LoaderCircle, Mail, AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { toast } from "sonner";
 import { api } from "../api";
 import { useAuth } from "../contexts/AuthContext";
+
+const RESEND_COOLDOWN_SECONDS = 60; // 1 минута
 
 const VerificationPage = () => {
     const navigate = useNavigate();
@@ -18,7 +20,11 @@ const VerificationPage = () => {
     const [isVerifying, setIsVerifying] = useState(false);
     const [errors, setErrors] = useState({});
     const [token, setToken] = useState(null);
+    const [resendCooldown, setResendCooldown] = useState(0);
+    const [isResending, setIsResending] = useState(false);
+    const cooldownIntervalRef = useRef(null);
 
+    // Восстановление таймера из localStorage при загрузке
     useEffect(() => {
         const tokenParam = searchParams.get('token');
         if (!tokenParam) {
@@ -27,7 +33,52 @@ const VerificationPage = () => {
             return;
         }
         setToken(tokenParam);
+
+        // Проверяем, есть ли сохраненное время последней отправки
+        const storageKey = `resend_cooldown_${tokenParam}`;
+        const lastResendTime = localStorage.getItem(storageKey);
+        
+        if (lastResendTime) {
+            const timePassed = Math.floor((Date.now() - parseInt(lastResendTime, 10)) / 1000);
+            const remaining = RESEND_COOLDOWN_SECONDS - timePassed;
+            
+            if (remaining > 0) {
+                setResendCooldown(remaining);
+            } else {
+                // Таймер истек, очищаем localStorage
+                localStorage.removeItem(storageKey);
+            }
+        }
     }, [searchParams, navigate]);
+
+    // Обработка таймера обратного отсчета
+    useEffect(() => {
+        if (resendCooldown > 0) {
+            cooldownIntervalRef.current = setInterval(() => {
+                setResendCooldown((prev) => {
+                    if (prev <= 1) {
+                        if (token) {
+                            const storageKey = `resend_cooldown_${token}`;
+                            localStorage.removeItem(storageKey);
+                        }
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        } else {
+            if (cooldownIntervalRef.current) {
+                clearInterval(cooldownIntervalRef.current);
+                cooldownIntervalRef.current = null;
+            }
+        }
+
+        return () => {
+            if (cooldownIntervalRef.current) {
+                clearInterval(cooldownIntervalRef.current);
+            }
+        };
+    }, [resendCooldown, token]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -40,6 +91,35 @@ const VerificationPage = () => {
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+    };
+
+    const handleResendCode = async () => {
+        if (!token || resendCooldown > 0 || isResending) {
+            return;
+        }
+
+        setIsResending(true);
+
+        try {
+            await api.resendVerificationCode(token);
+            
+            // Сохраняем время отправки в localStorage
+            const storageKey = `resend_cooldown_${token}`;
+            localStorage.setItem(storageKey, Date.now().toString());
+            
+            // Устанавливаем таймер
+            setResendCooldown(RESEND_COOLDOWN_SECONDS);
+            
+            toast.success("Код верификации отправлен повторно!");
+        } catch (error) {
+            console.error("Resend error:", error);
+            const errorMessage = error.response?.data?.detail || 
+                error.message || 
+                "Произошла ошибка при повторной отправке кода";
+            toast.error(errorMessage);
+        } finally {
+            setIsResending(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -62,6 +142,12 @@ const VerificationPage = () => {
             await api.verifyRegistration(token, parseInt(verificationCode.trim(), 10));
 
             toast.success("Email успешно подтвержден!");
+
+            // Очищаем таймер повторной отправки при успешной верификации
+            if (token) {
+                const storageKey = `resend_cooldown_${token}`;
+                localStorage.removeItem(storageKey);
+            }
 
             // Получаем сохраненные email и password из sessionStorage
             const savedEmail = sessionStorage.getItem('pending_email');
@@ -197,6 +283,34 @@ const VerificationPage = () => {
                                 </Button>
                             </form>
 
+                            <div className="mt-4">
+                                <Button
+                                    type="button"
+                                    onClick={handleResendCode}
+                                    disabled={resendCooldown > 0 || isResending || !token}
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full"
+                                >
+                                    {isResending ? (
+                                        <>
+                                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                                            Отправка...
+                                        </>
+                                    ) : resendCooldown > 0 ? (
+                                        <>
+                                            <RefreshCw className="mr-2 h-4 w-4" />
+                                            Повторить через {resendCooldown} сек
+                                        </>
+                                    ) : (
+                                        <>
+                                            <RefreshCw className="mr-2 h-4 w-4" />
+                                            Отправить код повторно
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+
                             <div className="mt-6 text-center">
                                 <Button
                                     type="button"
@@ -212,7 +326,7 @@ const VerificationPage = () => {
                             </div>
 
                             <p className="text-xs text-muted-foreground mt-4 text-center">
-                                Не получили код? Проверьте папку "Спам" или попробуйте зарегистрироваться снова.
+                                Не получили код? Проверьте папку "Спам".
                             </p>
                         </CardContent>
                     </Card>
