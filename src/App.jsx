@@ -10,6 +10,7 @@ import EventsPage from "@/pages/EventsPage.jsx";
 import Layout from "@/components/layout/Layout.jsx";
 import NotFoundPage from "@/pages/NotFoundPage.jsx";
 import DashboardPage from "@/pages/DashboardPage.jsx";
+import NotificationsPage from "@/pages/NotificationsPage.jsx";
 
 import './App.css';
 import ResetPasswordPage from "@/pages/ResetPasswordPage.jsx";
@@ -44,6 +45,7 @@ function App() {
                             <Route path="" element={<Navigate to="/dashboard" replace/>}/>
                             <Route path="dashboard" element={<DashboardPage/>}/>
                             <Route path="events" element={<EventsPage />} />
+                            <Route path="notifications" element={<NotificationsPage />} />
                             <Route path="admin" element={<AdminPage/>}/>
                         </Route>
                         {/*<Route path="/posts" element={<PostsPage />} />*/}
