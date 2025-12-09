@@ -19,7 +19,11 @@ const EventsPage = () => {
         participants: null,
     });
     const [showFilters, setShowFilters] = useState(false);
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState([]); // События для текущей вкладки (с учетом фильтров)
+    const [allEvents, setAllEvents] = useState([]); // Все события для статистики
+    const [myEvents, setMyEvents] = useState([]); // События, где пользователь участвует
+    const [activeEvents, setActiveEvents] = useState([]); // Активные события
+    const [pastEvents, setPastEvents] = useState([]); // Прошедшие события
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -42,48 +46,80 @@ const EventsPage = () => {
         };
     };
 
-    // Загрузка событий с сервера
-    const loadEvents = async () => {
+    // Загрузка всех событий для статистики и всех вкладок
+    const loadAllEvents = async () => {
         setLoading(true);
         setError(null);
         
         try {
-            let apiParams = {};
+            // Параллельная загрузка всех категорий событий
+            const [allData, activeData, pastData] = await Promise.all([
+                api.getEventCards({}), // Все события для статистики
+                api.getEventCards({ status: "ACTIVE" }), // Активные события
+                api.getEventCards({ status: "PAST" }), // Прошедшие события
+            ]);
+
+            // Маппинг данных
+            const mappedAllEvents = allData.map(mapEventData);
+            const mappedActiveEvents = activeData.map(mapEventData);
+            const mappedPastEvents = pastData.map(mapEventData);
             
-            // Для вкладки "active" и "past" загружаем с соответствующим статусом
-            if (activeTab === "active") {
-                apiParams.status = "ACTIVE";
-            } else if (activeTab === "past") {
-                apiParams.status = "PAST";
-            }
-            // Для "my-events" загружаем все события (без фильтра), фильтрация будет на клиенте
-            
-            const data = await api.getEventCards(apiParams);
-            const mappedEvents = data.map(mapEventData);
-            setEvents(mappedEvents);
+            // Фильтрация событий, где пользователь участвует
+            const mappedMyEvents = mappedAllEvents.filter(e => e.isParticipating);
+
+            // Обновление всех состояний
+            setAllEvents(mappedAllEvents);
+            setActiveEvents(mappedActiveEvents);
+            setPastEvents(mappedPastEvents);
+            setMyEvents(mappedMyEvents);
+
+            // Установка событий для текущей вкладки
+            updateEventsForTab(activeTab, mappedAllEvents, mappedActiveEvents, mappedPastEvents, mappedMyEvents);
         } catch (err) {
             const errorMessage = err.response?.data?.detail || err.message || 'Ошибка при загрузке событий';
             setError(errorMessage);
             toast.error(errorMessage);
+            setAllEvents([]);
+            setActiveEvents([]);
+            setPastEvents([]);
+            setMyEvents([]);
             setEvents([]);
         } finally {
             setLoading(false);
         }
     };
 
-    // Загрузка данных при монтировании и изменении вкладки
+    // Обновление событий для текущей вкладки
+    const updateEventsForTab = (tab, all, active, past, my) => {
+        switch (tab) {
+            case "my-events":
+                setEvents(my);
+                break;
+            case "active":
+                setEvents(active);
+                break;
+            case "past":
+                setEvents(past);
+                break;
+            default:
+                setEvents(all);
+        }
+    };
+
+    // Загрузка данных при монтировании
     useEffect(() => {
-        loadEvents();
+        loadAllEvents();
+    }, []);
+
+    // Обновление событий при переключении вкладки
+    useEffect(() => {
+        if (allEvents.length > 0 || activeEvents.length > 0 || pastEvents.length > 0 || myEvents.length > 0) {
+            updateEventsForTab(activeTab, allEvents, activeEvents, pastEvents, myEvents);
+        }
     }, [activeTab]);
 
-    // Фильтрация событий
+    // Фильтрация событий (только поиск и фильтры, статус уже учтен в events)
     const filteredEvents = events.filter(event => {
-        // Для вкладки "my-events" показываем только события, где пользователь участвует
-        if (activeTab === "my-events") {
-            if (!event.isParticipating) return false;
-        }
-        // Для "active" и "past" фильтрация уже сделана на сервере
-
         // Локальная фильтрация по поиску
         if (searchQuery && !event.title.toLowerCase().includes(searchQuery.toLowerCase())) {
             return false;
@@ -120,30 +156,60 @@ const EventsPage = () => {
         return true;
     });
 
-    // Статистика
+    // Статистика (на основе всех событий, независимо от вкладки и фильтров)
     const stats = {
-        total: events.length,
-        participating: events.filter(e => e.isParticipating).length,
-        upcoming: events.filter(e => e.status === "active").length,
+        total: allEvents.length,
+        participating: allEvents.filter(e => e.isParticipating).length,
+        upcoming: allEvents.filter(e => e.status === "active").length,
+    };
+
+    // Обновление события во всех массивах
+    const updateEventInArray = (eventsArray, eventId, newStatus) => {
+        return eventsArray.map(event => {
+            if (event.id === eventId) {
+                return {
+                    ...event,
+                    isParticipating: newStatus === 'PARTICIPATING',
+                    participation_status: newStatus,
+                    participants: newStatus === 'PARTICIPATING' 
+                        ? event.participants + 1 
+                        : Math.max(0, event.participants - 1)
+                };
+            }
+            return event;
+        });
     };
 
     // Обработка изменения участия (оптимистичное обновление)
     const handleParticipationChange = (eventId, newStatus) => {
-        setEvents(prevEvents => 
-            prevEvents.map(event => {
-                if (event.id === eventId) {
-                    return {
-                        ...event,
-                        isParticipating: newStatus === 'PARTICIPATING',
-                        participation_status: newStatus,
-                        participants: newStatus === 'PARTICIPATING' 
-                            ? event.participants + 1 
-                            : Math.max(0, event.participants - 1)
-                    };
-                }
-                return event;
-            })
-        );
+        const isParticipating = newStatus === 'PARTICIPATING';
+        
+        // Функция для обновления события в массиве
+        const updateEvent = (event) => {
+            if (event.id === eventId) {
+                return {
+                    ...event,
+                    isParticipating,
+                    participation_status: newStatus,
+                    participants: isParticipating 
+                        ? event.participants + 1 
+                        : Math.max(0, event.participants - 1)
+                };
+            }
+            return event;
+        };
+
+        // Обновляем все массивы событий
+        setAllEvents(prev => {
+            const updated = prev.map(updateEvent);
+            // Обновляем myEvents на основе обновленного allEvents
+            setMyEvents(updated.filter(e => e.isParticipating));
+            return updated;
+        });
+        
+        setActiveEvents(prev => prev.map(updateEvent));
+        setPastEvents(prev => prev.map(updateEvent));
+        setEvents(prev => prev.map(updateEvent));
     };
 
     return (
@@ -239,13 +305,13 @@ const EventsPage = () => {
                                 <div className="px-6 py-2">
                                     <TabsList className="w-full md:w-auto">
                                         <TabsTrigger value="my-events" className="flex-1 md:flex-none">
-                                            Мои события ({stats.participating})
+                                            Мои события ({myEvents.length})
                                         </TabsTrigger>
                                         <TabsTrigger value="active" className="flex-1 md:flex-none">
-                                            Активные ({stats.upcoming})
+                                            Активные ({activeEvents.length})
                                         </TabsTrigger>
                                         <TabsTrigger value="past" className="flex-1 md:flex-none">
-                                            Прошедшие ({events.filter(e => e.status === "past").length})
+                                            Прошедшие ({pastEvents.length})
                                         </TabsTrigger>
                                     </TabsList>
                                 </div>
@@ -266,7 +332,7 @@ const EventsPage = () => {
                                             <Button 
                                                 variant="outline" 
                                                 className="mt-4"
-                                                onClick={loadEvents}
+                                                onClick={loadAllEvents}
                                             >
                                                 Попробовать снова
                                             </Button>
