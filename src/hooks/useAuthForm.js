@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { handlePydanticError } from "@/lib/utils.js";
+import { handlePydanticError } from "@/lib/utils.ts";
 
 export const useAuthForm = (initialState, validators) => {
     const [formData, setFormData] = useState(initialState);
