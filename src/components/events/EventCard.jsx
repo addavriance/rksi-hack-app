@@ -9,7 +9,7 @@ import { ru } from "date-fns/locale";
 import { toast } from "sonner";
 import { api } from "@/api.js";
 
-const EventCard = ({ event, onParticipationChange }) => {
+const EventCard = ({ event, onParticipationChange, onCancelRequest }) => {
     const [isUpdating, setIsUpdating] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const statusColors = {
@@ -67,6 +67,13 @@ const EventCard = ({ event, onParticipationChange }) => {
     const handleCancel = async () => {
         if (isUpdating) return;
         
+        // Если передан специальный callback для отмены (для показа диалога), используем его
+        if (onCancelRequest) {
+            onCancelRequest(event.id);
+            return;
+        }
+
+        // Иначе работаем как раньше (для обратной совместимости)
         const previousStatus = event.participation_status;
 
         // Оптимистичное обновление

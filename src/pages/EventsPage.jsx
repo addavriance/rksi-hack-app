@@ -185,18 +185,17 @@ const EventsPage = () => {
 
     // Обработка изменения участия (оптимистичное обновление)
     const handleParticipationChange = (eventId, newStatus) => {
-        // Если пытаемся отменить участие, показываем диалог подтверждения
-        if (newStatus === 'NONE') {
-            const event = allEvents.find(e => e.id === eventId);
-            if (event && event.isParticipating) {
-                setEventToCancel({ id: eventId, title: event.title });
-                setCancelDialogOpen(true);
-                return;
-            }
-        }
-
         // Для участия в событии обновляем сразу
         applyParticipationChange(eventId, newStatus);
+    };
+
+    // Обработка запроса на отмену участия (показывает диалог)
+    const handleCancelRequest = (eventId) => {
+        const event = allEvents.find(e => e.id === eventId);
+        if (event && event.isParticipating) {
+            setEventToCancel({ id: eventId, title: event.title });
+            setCancelDialogOpen(true);
+        }
     };
 
     // Применение изменения участия (оптимистичное обновление)
@@ -403,6 +402,7 @@ const EventsPage = () => {
                                                     key={event.id} 
                                                     event={event}
                                                     onParticipationChange={handleParticipationChange}
+                                                    onCancelRequest={handleCancelRequest}
                                                 />
                                             ))}
                                         </div>
