@@ -21,6 +21,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 
@@ -28,6 +33,7 @@ const Sidebar = () => {
     const location = useLocation();
     const { user, logout } = useAuth();
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const [hoveredItem, setHoveredItem] = useState(null);
 
     const isAdmin = user?.role === "admin" || true; // для тестов
 
@@ -69,115 +75,114 @@ const Sidebar = () => {
     return (
         <>
             {/* Десктопный сайдбар - скрыт на мобильных */}
-            <div className="hidden md:flex w-64 bg-white dark:bg-gray-900 border-r dark:border-gray-800 h-screen sticky top-0 flex flex-col">
+            <div className="hidden md:flex w-16 bg-white dark:bg-gray-900 border-r dark:border-gray-800 h-screen sticky top-0 flex flex-col">
                 {/* Верхняя часть с логотипом */}
-                <div className="p-6 border-b dark:border-gray-800">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Calendar className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                            <h2 className="font-bold text-gray-900 dark:text-white">TTK Афиша</h2>
-                            <p className="text-xs text-muted-foreground dark:text-gray-400">
-                                Электронная система мероприятий
-                            </p>
-                        </div>
+                <div className="p-4 border-b dark:border-gray-800 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Calendar className="h-6 w-6 text-primary" />
                     </div>
                 </div>
 
                 {/* Навигация */}
-                <nav className="flex-1 p-4 overflow-y-auto">
-                    <div className="mb-8">
-                        <p className="text-xs text-muted-foreground dark:text-gray-400 uppercase tracking-wider mb-3 px-3">
-                            Основное
-                        </p>
-                        <ul className="space-y-1">
-                            {navItems.map((item) => {
-                                const Icon = item.icon;
-                                const isActive = location.pathname === item.path;
+                <nav className="flex-1 p-2 overflow-y-auto">
+                    <ul className="space-y-1">
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = location.pathname === item.path;
+                            const isHovered = hoveredItem === item.path;
 
-                                return (
-                                    <li key={item.path}>
-                                        <Link
-                                            to={item.path}
-                                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                                                isActive
-                                                    ? "bg-primary text-white"
-                                                    : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
-                                            }`}
-                                        >
-                                            <Icon className="h-4 w-4" />
-                                            <span>{item.label}</span>
-                                            {item.badge && (
-                                                <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {item.badge}
-                      </span>
-                                            )}
-                                        </Link>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    </div>
-
-                    {isAdmin && (
-                        <div className="mb-8">
-                            <p className="text-xs text-muted-foreground dark:text-gray-400 uppercase tracking-wider mb-3 px-3">
-                                Администрирование
-                            </p>
-                            <ul className="space-y-1">
-                                {adminItems.map((item) => {
-                                    const Icon = item.icon;
-                                    const isActive = location.pathname === item.path;
-
-                                    return (
-                                        <li key={item.path}>
+                            return (
+                                <li key={item.path}>
+                                    <Popover open={isHovered} onOpenChange={(open) => setHoveredItem(open ? item.path : null)}>
+                                        <PopoverTrigger asChild>
                                             <Link
                                                 to={item.path}
-                                                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                                                onMouseEnter={() => setHoveredItem(item.path)}
+                                                onMouseLeave={() => setHoveredItem(null)}
+                                                className={`flex items-center justify-center relative px-2 py-2 rounded-lg text-sm transition-colors ${
                                                     isActive
                                                         ? "bg-primary text-white"
                                                         : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
                                                 }`}
                                             >
-                                                <Icon className="h-4 w-4" />
-                                                <span>{item.label}</span>
+                                                <Icon className="h-5 w-5" />
+                                                {item.badge && (
+                                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                                        {item.badge}
+                                                    </span>
+                                                )}
                                             </Link>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent 
+                                            side="right" 
+                                            align="center"
+                                            className="w-auto p-2 text-sm"
+                                            onMouseEnter={() => setHoveredItem(item.path)}
+                                            onMouseLeave={() => setHoveredItem(null)}
+                                        >
+                                            {item.label}
+                                        </PopoverContent>
+                                    </Popover>
+                                </li>
+                            );
+                        })}
+                    </ul>
+
+                    {isAdmin && (
+                        <ul className="space-y-1 mt-4">
+                            {adminItems.map((item) => {
+                                const Icon = item.icon;
+                                const isActive = location.pathname === item.path;
+                                const isHovered = hoveredItem === item.path;
+
+                                return (
+                                    <li key={item.path}>
+                                        <Popover open={isHovered} onOpenChange={(open) => setHoveredItem(open ? item.path : null)}>
+                                            <PopoverTrigger asChild>
+                                                <Link
+                                                    to={item.path}
+                                                    onMouseEnter={() => setHoveredItem(item.path)}
+                                                    onMouseLeave={() => setHoveredItem(null)}
+                                                    className={`flex items-center justify-center px-2 py-2 rounded-lg text-sm transition-colors ${
+                                                        isActive
+                                                            ? "bg-primary text-white"
+                                                            : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                                                    }`}
+                                                >
+                                                    <Icon className="h-5 w-5" />
+                                                </Link>
+                                            </PopoverTrigger>
+                                            <PopoverContent 
+                                                side="right" 
+                                                align="center"
+                                                className="w-auto p-2 text-sm"
+                                                onMouseEnter={() => setHoveredItem(item.path)}
+                                                onMouseLeave={() => setHoveredItem(null)}
+                                            >
+                                                {item.label}
+                                            </PopoverContent>
+                                        </Popover>
+                                    </li>
+                                );
+                            })}
+                        </ul>
                     )}
                 </nav>
 
                 {/* Нижняя часть с профилем и настройками */}
-                <div className="border-t dark:border-gray-800 p-4">
+                <div className="border-t dark:border-gray-800 p-2">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="w-full h-auto p-3 hover:bg-gray-100 dark:hover:bg-gray-800 justify-start"
+                                className="w-full h-auto p-2 hover:bg-gray-100 dark:hover:bg-gray-800 justify-center"
                             >
-                                <div className="flex items-center gap-3 w-full">
-                                    {/* Аватар */}
-                                    <div className="relative">
-                                        <div className="h-10 w-10 rounded-full bg-gradient-to-r from-primary to-primary/70 flex items-center justify-center text-white font-semibold text-sm">
-                                            {getInitials(user?.full_name || "Пользователь")}
-                                        </div>
-                                        <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-white dark:bg-gray-900 rounded-full border dark:border-gray-700 flex items-center justify-center">
-                                            <Settings className="h-3 w-3 text-gray-500" />
-                                        </div>
+                                <div className="relative">
+                                    <div className="h-10 w-10 rounded-full bg-gradient-to-r from-primary to-primary/70 flex items-center justify-center text-white font-semibold text-sm">
+                                        {getInitials(user?.full_name || "Пользователь")}
                                     </div>
-
-                                    {/* Информация о пользователе */}
-                                    <div className="flex-1 text-left overflow-hidden">
-                                        <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
-                                            {user?.full_name || "Пользователь"}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground dark:text-gray-400 truncate">
-                                            {isAdmin ? "Администратор" : "Пользователь"}
-                                        </p>
+                                    <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-white dark:bg-gray-900 rounded-full border dark:border-gray-700 flex items-center justify-center">
+                                        <Settings className="h-3 w-3 text-gray-500" />
                                     </div>
                                 </div>
                             </Button>
