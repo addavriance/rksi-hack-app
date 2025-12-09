@@ -63,7 +63,7 @@ const DashboardPage = () => {
                             Ближайшие события
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 md:p-6">
+                    <CardContent className="p-4 md:p-6 flex flex-col justify-between h-full">
                         <div className="space-y-3 md:space-y-4">
                             {upcomingEvents.map(event => (
                                 <div key={event.id} className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-card gap-3 md:gap-0">
@@ -164,39 +164,6 @@ const DashboardPage = () => {
                                     <div className="flex-1 min-w-0">
                                         <div className="font-medium text-sm md:text-base">Новое событие</div>
                                         <div className="text-xs md:text-sm text-muted-foreground">Тимбилдинг на следующей неделе</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Статистика участия */}
-                    <Card>
-                        <CardHeader className="p-4 md:p-6">
-                            <CardTitle className="text-base md:text-lg">Ваша активность</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 md:p-6">
-                            <div className="space-y-3 md:space-y-4">
-                                <div>
-                                    <div className="flex justify-between text-xs md:text-sm mb-1">
-                                        <span>Участие в событиях</span>
-                                        <span>{stats.myEvents}/{stats.totalEvents}</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                        <div
-                                            className="bg-primary rounded-full h-2"
-                                            style={{ width: `${(stats.myEvents / stats.totalEvents) * 100}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-
-                                <div className="pt-3 md:pt-4 border-t">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xs md:text-sm text-muted-foreground">Средний рейтинг</span>
-                                        <div className="flex items-center">
-                                            <Star className="h-3 w-3 md:h-4 md:w-4 text-yellow-500 mr-1" />
-                                            <span className="font-medium text-sm md:text-base">4.8</span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

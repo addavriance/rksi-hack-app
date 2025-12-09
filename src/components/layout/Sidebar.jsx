@@ -1,4 +1,3 @@
-// components/layout/Sidebar.jsx
 import { Link, useLocation } from "react-router-dom";
 import {
     Calendar,
@@ -35,7 +34,7 @@ const Sidebar = () => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [hoveredItem, setHoveredItem] = useState(null);
 
-    const isAdmin = user?.role === "admin" || true; // для тестов
+    const isAdmin = user.role === "ADMINISTRATOR";
 
     const navItems = [
         { path: "/dashboard", label: "Главная", icon: Home },
@@ -64,7 +63,7 @@ const Sidebar = () => {
 
     const toggleTheme = () => {
         setIsDarkMode(!isDarkMode);
-        // Здесь можно добавить логику переключения темы
+
         if (!isDarkMode) {
             document.documentElement.classList.add("dark");
         } else {

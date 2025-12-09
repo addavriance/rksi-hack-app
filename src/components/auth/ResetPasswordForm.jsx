@@ -1,13 +1,13 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { useAuthForm } from "../../hooks/useAuthForm";
+import { useAuthForm } from "@/hooks/useAuthForm.js";
 import { FormField } from "../auth/FormField";
 import { SubmitButton } from "../auth/SubmitButton";
 import { Button } from "../ui/button";
 import { Lock, ArrowLeft } from "lucide-react";
-import { validators } from "../../utils/validators";
-import { api } from "../../api";
+import { validators } from "@/utils/validators.js";
+import { api } from "@/api.js";
 
 export const ResetPasswordForm = () => {
     const navigate = useNavigate();

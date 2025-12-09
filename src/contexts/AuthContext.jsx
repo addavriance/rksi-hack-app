@@ -38,13 +38,13 @@ export const AuthProvider = ({ children }) => {
                     return;
                 }
 
-                // Пробуем получить информацию о текущем пользователе
                 const userData = await api.getActiveLogin();
 
                 if (userData && userData.email) {
                     setUser({
                         email: userData.email,
                         full_name: userData.full_name,
+                        role: userData.role,
                         token,
                         uid,
                     });
