@@ -1,36 +1,143 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
     Calendar, Users, Bell, TrendingUp,
-    Clock, CheckCircle, AlertCircle, Star
+    Clock, CheckCircle, AlertCircle, Star, Loader2
 } from "lucide-react";
-import { mockEvents } from "@/data/mockEvents";
-import {useAuth} from "@/contexts/AuthContext.jsx";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext.jsx";
+import { api } from "@/api.js";
 
 const DashboardPage = () => {
-    const {user} = useAuth();
+    const { user } = useAuth();
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [updatingEventId, setUpdatingEventId] = useState(null);
+
+    // Маппинг данных из EventCardDTO к формату компонентов
+    const mapEventData = (event) => {
+        return {
+            id: event.id,
+            title: event.name,
+            description: event.short_description || event.description,
+            fullDescription: event.description,
+            image: event.image_url,
+            startDate: event.starts_at,
+            endDate: event.ends_at,
+            participants: event.participants_count,
+            maxParticipants: event.max_participants_count,
+            status: event.status.toLowerCase(), // ACTIVE → active, PAST → past, REJECTED → rejected
+            isParticipating: event.participation_status === 'PARTICIPATING',
+            location: event.location,
+            participation_status: event.participation_status, // Сохраняем для обновления
+        };
+    };
+
+    // Загрузка событий с сервера
+    const loadEvents = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Загружаем активные и прошедшие события для получения полной статистики
+            const [activeData, pastData] = await Promise.all([
+                api.getEventCards({ status: "ACTIVE" }),
+                api.getEventCards({ status: "PAST" })
+            ]);
+
+            // Объединяем и маппим все события
+            const allData = [...activeData, ...pastData];
+            const mappedEvents = allData.map(mapEventData);
+            setEvents(mappedEvents);
+        } catch (err) {
+            const errorMessage = err.response?.data?.detail || err.message || 'Ошибка при загрузке событий';
+            setError(errorMessage);
+            toast.error(errorMessage);
+            setEvents([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Загрузка данных при монтировании
+    useEffect(() => {
+        loadEvents();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Ближайшие события
+    const upcomingEvents = events
+        .filter(e => {
+            if (e.status !== "active") return false;
+            const eventDate = new Date(e.startDate);
+            const now = new Date();
+            // Проверяем, что событие еще не началось
+            return eventDate > now;
+        })
+        .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+        .slice(0, 3);
+
+    // Мои события
+    const myEvents = events
+        .filter(e => e.isParticipating)
+        .slice(0, 3);
+
     // Статистика
     const stats = {
-        totalEvents: mockEvents.length,
-        activeEvents: mockEvents.filter(e => e.status === "active").length,
-        myEvents: mockEvents.filter(e => e.isParticipating).length,
-        upcomingEvents: mockEvents.filter(e =>
+        totalEvents: events.length,
+        activeEvents: events.filter(e => e.status === "active").length,
+        myEvents: events.filter(e => e.isParticipating).length,
+        upcomingEvents: events.filter(e =>
             e.status === "active" &&
             new Date(e.startDate) > new Date()
         ).length,
     };
 
-    // Ближайшие события
-    const upcomingEvents = mockEvents
-        .filter(e => e.status === "active" && new Date(e.startDate) > new Date())
-        .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
-        .slice(0, 3);
+    // Обработка изменения участия (оптимистичное обновление)
+    const handleParticipationChange = (eventId, newStatus) => {
+        setEvents(prevEvents =>
+            prevEvents.map(event => {
+                if (event.id === eventId) {
+                    return {
+                        ...event,
+                        isParticipating: newStatus === 'PARTICIPATING',
+                        participation_status: newStatus,
+                        participants: newStatus === 'PARTICIPATING'
+                            ? event.participants + 1
+                            : Math.max(0, event.participants - 1)
+                    };
+                }
+                return event;
+            })
+        );
+    };
 
-    // Мои события
-    const myEvents = mockEvents
-        .filter(e => e.isParticipating)
-        .slice(0, 3);
+    // Обработка участия в событии
+    const handleParticipate = async (eventId) => {
+        const event = events.find(e => e.id === eventId);
+        if (!event || updatingEventId === eventId) return;
+
+        const previousStatus = event.participation_status;
+
+        // Оптимистичное обновление
+        handleParticipationChange(eventId, 'PARTICIPATING');
+        setUpdatingEventId(eventId);
+
+        try {
+            await api.updateParticipation(eventId, { status: 'PARTICIPATING' });
+            toast.success('Вы успешно записались на событие!');
+        } catch (error) {
+            // Откат изменений при ошибке
+            handleParticipationChange(eventId, previousStatus);
+            const errorMessage = error.response?.data?.detail || error.message || 'Ошибка при записи на событие';
+            toast.error(errorMessage);
+        } finally {
+            setUpdatingEventId(null);
+        }
+    };
 
     return (
         <div className="space-y-4 md:space-y-8">
@@ -63,9 +170,28 @@ const DashboardPage = () => {
                             Ближайшие события
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4 md:p-6 flex flex-col justify-between h-full">
-                        <div className="space-y-3 md:space-y-4">
-                            {upcomingEvents.map(event => (
+                    <CardContent className="p-4 md:p-6">
+                        {loading ? (
+                            <div className="text-center py-8">
+                                <Loader2 className="h-8 w-8 mx-auto text-muted-foreground animate-spin mb-4" />
+                                <p className="text-sm text-muted-foreground">Загрузка событий...</p>
+                            </div>
+                        ) : error ? (
+                            <div className="text-center py-8">
+                                <AlertCircle className="h-8 w-8 mx-auto text-destructive mb-4" />
+                                <p className="text-sm text-muted-foreground mb-4">{error}</p>
+                                <Button variant="outline" size="sm" onClick={loadEvents}>
+                                    Попробовать снова
+                                </Button>
+                            </div>
+                        ) : upcomingEvents.length === 0 ? (
+                            <div className="text-center py-8">
+                                <Clock className="h-8 w-8 mx-auto text-muted-foreground mb-4" />
+                                <p className="text-sm text-muted-foreground">Нет предстоящих событий</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3 md:space-y-4">
+                                {upcomingEvents.map(event => (
                                 <div key={event.id} className="flex flex-col md:flex-row md:items-center md:justify-between p-3 md:p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-card gap-3 md:gap-0">
                                     <div className="flex items-center flex-1">
                                         <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-primary/10 flex items-center justify-center mr-3 md:mr-4 flex-shrink-0">
@@ -91,16 +217,27 @@ const DashboardPage = () => {
                                                 Вы участвуете
                                             </div>
                                         ) : (
-                                            <Button size="sm" asChild className="min-h-[40px] md:min-h-[32px] text-xs md:text-sm px-4 mt-6">
-                                                <Link to={`/events/${event.id}`}>Участвовать</Link>
-                                                {/*заглушка, но тут по логике нужен хендлер просто который
-                                                оптимистично обновит состояние на то что мы участвуем и направит запрос на бек*/}
+                                            <Button
+                                                size="sm"
+                                                className="min-h-[40px] md:min-h-[32px] text-xs md:text-sm px-4 mt-6"
+                                                onClick={() => handleParticipate(event.id)}
+                                                disabled={updatingEventId === event.id || loading}
+                                            >
+                                                {updatingEventId === event.id ? (
+                                                    <>
+                                                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                                        Загрузка...
+                                                    </>
+                                                ) : (
+                                                    'Участвовать'
+                                                )}
                                             </Button>
                                         )}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                         <Button variant="outline" className="w-full mt-4 min-h-[44px] md:min-h-[40px]" asChild>
                             <Link to="/events">Все события →</Link>
                         </Button>
@@ -118,26 +255,34 @@ const DashboardPage = () => {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-4 md:p-6">
-                            <div className="space-y-2 md:space-y-3">
-                                {myEvents.map(event => (
-                                    <div key={event.id} className="p-2 md:p-3 border rounded-lg">
-                                        <div className="font-medium text-sm md:text-base truncate">{event.title}</div>
-                                        <div className="text-xs md:text-sm text-muted-foreground">
-                                            {new Date(event.startDate).toLocaleDateString('ru-RU', {
-                                                day: 'numeric',
-                                                month: 'short'
-                                            })}
-                                        </div>
+                            {loading ? (
+                                <div className="text-center py-4">
+                                    <Loader2 className="h-6 w-6 mx-auto text-muted-foreground animate-spin" />
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="space-y-2 md:space-y-3">
+                                        {myEvents.map(event => (
+                                            <div key={event.id} className="p-2 md:p-3 border rounded-lg">
+                                                <div className="font-medium text-sm md:text-base truncate">{event.title}</div>
+                                                <div className="text-xs md:text-sm text-muted-foreground">
+                                                    {new Date(event.startDate).toLocaleDateString('ru-RU', {
+                                                        day: 'numeric',
+                                                        month: 'short'
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                            {myEvents.length === 0 && (
+                                    {myEvents.length === 0 && (
                                 <div className="text-center py-4">
                                     <p className="text-sm md:text-base text-muted-foreground mb-3">Вы ещё не участвуете в событиях</p>
                                     <Button size="sm" asChild className="min-h-[44px] md:min-h-[32px]">
                                         <Link to="/events">Найти события</Link>
                                     </Button>
                                 </div>
+                                    )}
+                                </>
                             )}
                         </CardContent>
                     </Card>
