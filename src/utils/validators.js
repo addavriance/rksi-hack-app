@@ -7,8 +7,22 @@ export const validators = {
     },
 
     password: (password) => {
-        if (!password) return "Пароль обязателен";
-        if (password.length < 8) return "Минимум 8 символов";
+        if (!password || !password.trim()) return "Пароль обязателен";
+        if (password.trim().length < 8) return "Минимум 8 символов";
+        if (password.trim().length > 64) return "Максимум 64 символа";
+
+        if (!/[A-ZА-Я]/.test(password)) return "Добавьте хотя бы одну заглавную букву";
+
+        if (!/[a-zа-я]/.test(password)) return "Добавьте хотя бы одну строчную букву";
+
+        if (!/\d/.test(password)) return "Добавьте хотя бы одну цифру";
+
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) {
+            return "Добавьте хотя бы один специальный символ (!@#$%^&* и т.д.)";
+        }
+
+        if (/\s/.test(password)) return "Пароль не должен содержать пробелов";
+
         return null;
     },
 
