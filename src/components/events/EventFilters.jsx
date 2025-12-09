@@ -50,7 +50,7 @@ const EventFilters = ({ filters, onFilterChange }) => {
     const hasActiveFilters = Object.values(filters).some(value => !!value);
 
     return (
-        <div className="border rounded-lg bg-white p-6 shadow-sm">
+        <div className="border rounded-lg bg-white dark:bg-gray-950 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                     <Filter className="h-5 w-5 text-muted-foreground" />
