@@ -15,10 +15,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 
@@ -26,7 +28,6 @@ const Sidebar = () => {
     const location = useLocation();
     const { user, logout } = useAuth();
     const [isDarkMode, setIsDarkMode] = useState(false);
-    const [popoverOpen, setPopoverOpen] = useState(false);
 
     const isAdmin = user?.role === "admin" || true; // для тестов
 
@@ -53,7 +54,6 @@ const Sidebar = () => {
 
     const handleLogout = () => {
         logout();
-        setPopoverOpen(false);
     };
 
     const toggleTheme = () => {
@@ -153,8 +153,8 @@ const Sidebar = () => {
 
                 {/* Нижняя часть с профилем и настройками */}
                 <div className="border-t dark:border-gray-800 p-4">
-                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-                        <PopoverTrigger asChild>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
                                 className="w-full h-auto p-3 hover:bg-gray-100 dark:hover:bg-gray-800 justify-start"
@@ -181,9 +181,9 @@ const Sidebar = () => {
                                     </div>
                                 </div>
                             </Button>
-                        </PopoverTrigger>
+                        </DropdownMenuTrigger>
 
-                        <PopoverContent className="w-72 p-0" align="start" side="top">
+                        <DropdownMenuContent className="w-72 p-0" align="start" side="top">
                             {/* Заголовок профиля */}
                             <div className="p-4 border-b dark:border-gray-700">
                                 <div className="flex items-center gap-3">
@@ -203,140 +203,34 @@ const Sidebar = () => {
 
                             {/* Меню настроек */}
                             <div className="py-2">
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none"
-                                    onClick={() => {
-                                        setPopoverOpen(false);
+                                <DropdownMenuItem
+                                    className="px-4 py-3 cursor-pointer"
+                                    onSelect={(e) => {
+                                        e.preventDefault();
                                         // Переход на страницу профиля
                                     }}
                                 >
                                     <User className="h-4 w-4 mr-3" />
                                     <span className="text-gray-700 dark:text-gray-300">Мой профиль</span>
-                                </Button>
+                                </DropdownMenuItem>
 
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none"
-                                    onClick={() => {
-                                        setPopoverOpen(false);
+                                <DropdownMenuItem
+                                    className="px-4 py-3 cursor-pointer"
+                                    onSelect={(e) => {
+                                        e.preventDefault();
                                         // Переход на общие настройки
                                     }}
                                 >
                                     <Settings className="h-4 w-4 mr-3" />
                                     <span className="text-gray-700 dark:text-gray-300">
-                  Общие настройки
-                </span>
-                                </Button>
+                                        Общие настройки
+                                    </span>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
 
                                 {/* Переключатель темы */}
-                                <div className="px-4 py-3 border-t dark:border-gray-700">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            {isDarkMode ? (
-                                                <Moon className="h-4 w-4 text-gray-500" />
-                                            ) : (
-                                                <Sun className="h-4 w-4 text-gray-500" />
-                                            )}
-                                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                      {isDarkMode ? "Темная тема" : "Светлая тема"}
-                    </span>
-                                        </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={toggleTheme}
-                                            className="h-8 w-8 p-0"
-                                        >
-                                            <div
-                                                className={`h-4 w-4 rounded-full transition-all duration-200 ${
-                                                    isDarkMode
-                                                        ? "bg-gray-800"
-                                                        : "bg-gray-300"
-                                                }`}
-                                            />
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                {/* Выход */}
-                                <div className="border-t dark:border-gray-700">
-                                    <Button
-                                        variant="ghost"
-                                        className="w-full justify-start px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-none"
-                                        onClick={handleLogout}
-                                    >
-                                        <LogOut className="h-4 w-4 mr-3" />
-                                        <span>Выйти из аккаунта</span>
-                                    </Button>
-                                </div>
-                            </div>
-                        </PopoverContent>
-                    </Popover>
-                </div>
-            </div>
-
-            {/* Мобильный заголовок - виден только на мобильных */}
-            <div className="md:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b dark:border-gray-800 z-50">
-                <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Calendar className="h-5 w-5 text-primary" />
-                        </div>
-                        <h2 className="font-bold text-gray-900 dark:text-white text-base">TTK Афиша</h2>
-                    </div>
-                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-                        <PopoverTrigger asChild>
-                            <button className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                <div className="h-9 w-9 rounded-full bg-gradient-to-r from-primary to-primary/70 flex items-center justify-center text-white font-semibold text-xs">
-                                    {getInitials(user?.full_name || "П")}
-                                </div>
-                            </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-screen max-w-sm p-0" align="end" side="bottom">
-                            {/* Заголовок профиля */}
-                            <div className="p-4 border-b dark:border-gray-700">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-12 w-12 rounded-full bg-gradient-to-r from-primary to-primary/70 flex items-center justify-center text-white font-semibold">
-                                        {getInitials(user?.full_name || "П")}
-                                    </div>
-                                    <div>
-                                        <p className="font-semibold text-gray-900 dark:text-white">
-                                            {user?.full_name || "Пользователь"}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground dark:text-gray-400">
-                                            {user?.email || "user@example.com"}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Меню настроек */}
-                            <div className="py-2">
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none"
-                                    onClick={() => {
-                                        setPopoverOpen(false);
-                                    }}
-                                >
-                                    <User className="h-4 w-4 mr-3" />
-                                    <span className="text-gray-700 dark:text-gray-300">Мой профиль</span>
-                                </Button>
-
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-none"
-                                    onClick={() => {
-                                        setPopoverOpen(false);
-                                    }}
-                                >
-                                    <Settings className="h-4 w-4 mr-3" />
-                                    <span className="text-gray-700 dark:text-gray-300">Общие настройки</span>
-                                </Button>
-
-                                {/* Переключатель темы */}
-                                <div className="px-4 py-3 border-t dark:border-gray-700">
+                                <div className="px-4 py-3">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                             {isDarkMode ? (
@@ -351,7 +245,10 @@ const Sidebar = () => {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            onClick={toggleTheme}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleTheme();
+                                            }}
                                             className="h-8 w-8 p-0"
                                         >
                                             <div
@@ -365,20 +262,133 @@ const Sidebar = () => {
                                     </div>
                                 </div>
 
+                                <DropdownMenuSeparator />
+
                                 {/* Выход */}
-                                <div className="border-t dark:border-gray-700">
-                                    <Button
-                                        variant="ghost"
-                                        className="w-full justify-start px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-none"
-                                        onClick={handleLogout}
-                                    >
-                                        <LogOut className="h-4 w-4 mr-3" />
-                                        <span>Выйти из аккаунта</span>
-                                    </Button>
+                                <DropdownMenuItem
+                                    className="px-4 py-3 cursor-pointer text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20"
+                                    onSelect={(e) => {
+                                        e.preventDefault();
+                                        handleLogout();
+                                    }}
+                                >
+                                    <LogOut className="h-4 w-4 mr-3" />
+                                    <span>Выйти из аккаунта</span>
+                                </DropdownMenuItem>
+                            </div>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
+
+            {/* Мобильный заголовок - виден только на мобильных */}
+            <div className="md:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b dark:border-gray-800 z-50">
+                <div className="flex items-center justify-between px-4 py-3">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Calendar className="h-5 w-5 text-primary" />
+                        </div>
+                        <h2 className="font-bold text-gray-900 dark:text-white text-base">TTK Афиша</h2>
+                    </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <div className="h-9 w-9 rounded-full bg-gradient-to-r from-primary to-primary/70 flex items-center justify-center text-white font-semibold text-xs">
+                                    {getInitials(user?.full_name || "П")}
+                                </div>
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-screen max-w-sm p-0" align="end" side="bottom">
+                            {/* Заголовок профиля */}
+                            <div className="p-4 border-b dark:border-gray-700">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-12 w-12 rounded-full bg-gradient-to-r from-primary to-primary/70 flex items-center justify-center text-white font-semibold">
+                                        {getInitials(user?.full_name || "П")}
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-gray-900 dark:text-white">
+                                            {user?.full_name || "Пользователь"}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground dark:text-gray-400">
+                                            {user?.email || "user@example.com"}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </PopoverContent>
-                    </Popover>
+
+                            {/* Меню настроек */}
+                            <div className="py-2">
+                                <DropdownMenuItem
+                                    className="px-4 py-3 cursor-pointer"
+                                    onSelect={(e) => {
+                                        e.preventDefault();
+                                    }}
+                                >
+                                    <User className="h-4 w-4 mr-3" />
+                                    <span className="text-gray-700 dark:text-gray-300">Мой профиль</span>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem
+                                    className="px-4 py-3 cursor-pointer"
+                                    onSelect={(e) => {
+                                        e.preventDefault();
+                                    }}
+                                >
+                                    <Settings className="h-4 w-4 mr-3" />
+                                    <span className="text-gray-700 dark:text-gray-300">Общие настройки</span>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
+
+                                {/* Переключатель темы */}
+                                <div className="px-4 py-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            {isDarkMode ? (
+                                                <Moon className="h-4 w-4 text-gray-500" />
+                                            ) : (
+                                                <Sun className="h-4 w-4 text-gray-500" />
+                                            )}
+                                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                                                {isDarkMode ? "Темная тема" : "Светлая тема"}
+                                            </span>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                toggleTheme();
+                                            }}
+                                            className="h-8 w-8 p-0"
+                                        >
+                                            <div
+                                                className={`h-4 w-4 rounded-full transition-all duration-200 ${
+                                                    isDarkMode
+                                                        ? "bg-gray-800"
+                                                        : "bg-gray-300"
+                                                }`}
+                                            />
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <DropdownMenuSeparator />
+
+                                {/* Выход */}
+                                <DropdownMenuItem
+                                    className="px-4 py-3 cursor-pointer text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20"
+                                    onSelect={(e) => {
+                                        e.preventDefault();
+                                        handleLogout();
+                                    }}
+                                >
+                                    <LogOut className="h-4 w-4 mr-3" />
+                                    <span>Выйти из аккаунта</span>
+                                </DropdownMenuItem>
+                            </div>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
 
