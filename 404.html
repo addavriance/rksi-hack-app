@@ -1,19 +1,24 @@
-<!--<!doctype html>-->
-<!--<html lang="ru">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8"/>-->
-<!--    <link rel="icon" type="image/svg+xml" href="/ttk.png"/>-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>-->
-<!--    <title>TTK Afisha</title>-->
-<!--    <script>-->
-<!--        sessionStorage.redirect = location.pathname;-->
-<!--        location.href = '/404';-->
-<!--    </script>-->
-<!--</head>-->
-<!--<body>-->
-<!--<noscript>-->
-<!--    <p>Пожалуйста, включите JavaScript для работы приложения</p>-->
-<!--&lt;!&ndash;    <p>Перенаправление на главную страницу...</p>&ndash;&gt;-->
-<!--</noscript>-->
-<!--</body>-->
-<!--</html>-->
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="/ttk.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>TTK Afisha</title>
+    <script>
+        const originalUrl = window.location.pathname + window.location.search + window.location.hash;
+
+        sessionStorage.setItem('github_pages_redirect', 'true');
+        sessionStorage.setItem('original_path', originalUrl);
+
+        console.log('GitHub Pages 404 redirect, original path:', originalUrl);
+
+        window.location.replace('/');
+    </script>
+</head>
+<body>
+<noscript>
+    <p>Пожалуйста, включите JavaScript для работы приложения</p>
+</noscript>
+</body>
+</html>
