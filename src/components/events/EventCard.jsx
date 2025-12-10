@@ -59,7 +59,7 @@ const EventCard = ({event, onParticipationChange, onCancelRequest}) => {
     const handleParticipate = async () => {
         if (isUpdating) return;
 
-        if (event.participants_count === event.max_participants_count) {
+        if (event.participants === event.maxParticipants) {
             toast.error("Вы не можете присоединиться к этому событию. Достигнут максимальный лимит участников.");
             return;
         }
