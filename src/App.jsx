@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import {BrowserRouter, Routes, Route, Navigate, useNavigate} from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import VerificationPage from "./pages/VerificationPage";
@@ -17,11 +17,11 @@ import {isProtectedPath} from "@/lib/utils.js";
 
 const GitHubPagesRedirectHandler = () => {
     const navigate = useNavigate();
-    const { isAuthenticated, isLoading } = useAuth();
+    const {isAuthenticated, isLoading} = useAuth();
 
     useEffect(() => {
         console.log('🔍 [GitHubPagesRedirectHandler] useEffect triggered');
-        console.log('📊 [GitHubPagesRedirectHandler] Auth state:', { isAuthenticated, isLoading });
+        console.log('📊 [GitHubPagesRedirectHandler] Auth state:', {isAuthenticated, isLoading});
 
         const isGithubRedirect = sessionStorage.getItem('github_pages_redirect');
         const originalPath = sessionStorage.getItem('original_path');
@@ -47,16 +47,14 @@ const GitHubPagesRedirectHandler = () => {
 
             if (isAuthenticated) {
                 console.log('✅ [GitHubPagesRedirectHandler] User authenticated, navigating to:', originalPath);
-                navigate(originalPath, { replace: true });
-            }
-            else if (isPublicPath) {
+                navigate(originalPath, {replace: true});
+            } else if (isPublicPath) {
                 console.log('✅ [GitHubPagesRedirectHandler] Public path, navigating to:', originalPath);
-                navigate(originalPath, { replace: true });
-            }
-            else {
+                navigate(originalPath, {replace: true});
+            } else {
                 console.log('🔒 [GitHubPagesRedirectHandler] Protected path, redirecting to login. Saved path:', originalPath);
                 sessionStorage.setItem('redirect_after_login', originalPath);
-                navigate('/login', { replace: true });
+                navigate('/login', {replace: true});
             }
         } else {
             console.log('➡️ [GitHubPagesRedirectHandler] No GitHub redirect detected');
@@ -96,7 +94,7 @@ function App() {
         }
 
         console.log('🔐 [App] Checking auth protection...');
-        console.log('📊 [App] Auth state:', { isLoading, isAuthenticated });
+        console.log('📊 [App] Auth state:', {isLoading, isAuthenticated});
 
         if (!isLoading && !isAuthenticated) {
             const currentPath = window.location.pathname + window.location.search;
@@ -126,7 +124,7 @@ function App() {
         console.log('⏳ [App] Showing auth loader (isLoading)');
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary"/>
                 <span className="ml-2 text-muted-foreground">Проверка авторизации...</span>
             </div>
         );
@@ -135,32 +133,24 @@ function App() {
     console.log('✅ [App] Rendering main app with Router');
     return (
         <BrowserRouter>
-            <GitHubPagesRedirectHandler />
-            {hasProcessedRedirect && !isAuthenticated && !isLoading ? (
-                console.log('⏳ [App] Showing redirect processing loader'),
-                    <div className="min-h-screen flex items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <span className="ml-2 text-muted-foreground">Перенаправление...</span>
-                    </div>
-            ) : (
-                <Routes>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/verify" element={<VerificationPage />} />
-                    <Route path="/recovery" element={<ResetPasswordPage />} />
-                    <Route path="/404" element={<NotFoundPage />} />
+            <GitHubPagesRedirectHandler/>
+            <Routes>
+                <Route path="/login" element={<LoginPage/>}/>
+                <Route path="/register" element={<RegisterPage/>}/>
+                <Route path="/verify" element={<VerificationPage/>}/>
+                <Route path="/recovery" element={<ResetPasswordPage/>}/>
+                <Route path="/404" element={<NotFoundPage/>}/>
 
-                    <Route path="/" element={<Layout />}>
-                        <Route path="" element={<Navigate to="/dashboard" replace/>}/>
-                        <Route path="dashboard" element={<DashboardPage/>}/>
-                        <Route path="events" element={<EventsPage />} />
-                        <Route path="notifications" element={<NotificationsPage />} />
-                        <Route path="admin" element={<AdminPage/>}/>
-                    </Route>
+                <Route path="/" element={<Layout/>}>
+                    <Route path="" element={<Navigate to="/dashboard" replace/>}/>
+                    <Route path="dashboard" element={<DashboardPage/>}/>
+                    <Route path="events" element={<EventsPage/>}/>
+                    <Route path="notifications" element={<NotificationsPage/>}/>
+                    <Route path="admin" element={<AdminPage/>}/>
+                </Route>
 
-                    <Route path="*" element={<Navigate to="/404" replace/>} />
-                </Routes>
-            )}
+                <Route path="*" element={<Navigate to="/404" replace/>}/>
+            </Routes>
         </BrowserRouter>
     );
 }
