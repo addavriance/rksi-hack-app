@@ -242,6 +242,25 @@ class API {
     }
 
     /**
+     * Получение списка уведомлений
+     * @param {Object} params - Параметры: include_acked (boolean), limit (number), offset (number)
+     * @returns {Promise<Array<InstantNotificationDTO>>} - Список уведомлений
+     */
+    async getNotifications(params = {}) {
+        const response = await this.apiClient.get('/notifications/instant', { params });
+        return response.data;
+    }
+
+    /**
+     * Отметка уведомлений как прочитанных
+     * @param {Array<number>} ids - Массив ID уведомлений для отметки
+     * @returns {Promise<void>}
+     */
+    async ackNotifications(ids) {
+        await this.apiClient.post('/notifications/instant/ack', { ids });
+    }
+
+    /**
      * Очистка токенов из localStorage
      */
     logout() {
