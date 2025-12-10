@@ -13,6 +13,7 @@ import NotificationsPage from "@/pages/NotificationsPage.jsx";
 import './App.css';
 import ResetPasswordPage from "@/pages/ResetPasswordPage.jsx";
 import AdminPage from "@/pages/AdminPage.jsx";
+import {isProtectedPath} from "@/lib/utils.js";
 
 const GitHubPagesRedirectHandler = () => {
     const navigate = useNavigate();
@@ -32,11 +33,7 @@ const GitHubPagesRedirectHandler = () => {
                 navigate(originalPath, { replace: true });
             }
 
-            else if (originalPath.startsWith('/login') ||
-                originalPath.startsWith('/register') ||
-                originalPath.startsWith('/verify') ||
-                originalPath.startsWith('/recovery') ||
-                originalPath.startsWith('/404')) {
+            else if (isProtectedPath(originalPath)) {
                 navigate(originalPath, { replace: true });
             }
 
@@ -54,24 +51,15 @@ function App() {
     const {isAuthenticated, isLoading} = useAuth();
     const [isProcessingRedirect, setIsProcessingRedirect] = useState(false);
 
-    const isProtectedPath = () => {
-        const path = window.location.pathname;
-        return !(path.includes('/login')
-            || path.includes('/register')
-            || path.includes('/verify')
-            || path.includes('/recovery')
-            || path.includes('/404'));
-    };
-
     useEffect(() => {
         if (sessionStorage.getItem('github_pages_redirect')) {
             setIsProcessingRedirect(true);
             return;
         }
 
-        if (!isLoading && !isAuthenticated && isProtectedPath()) {
+        if (!isLoading && !isAuthenticated) {
             const currentPath = window.location.pathname + window.location.search;
-            if (!currentPath.includes('/login')) {
+            if (!isProtectedPath(currentPath)) {
                 sessionStorage.setItem('redirect_after_login', currentPath);
             }
             window.location.href = '/login';

@@ -6,7 +6,14 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-export const isProtectedPath = () => {
+export const isProtectedPath = (path?: string) => {
+    if (path) {
+        return !(path.includes('/login')
+            || path.includes('/register')
+            || path.includes('/verify')
+            || path.includes('/recovery')
+            || path.includes('/404'))
+    }
     return !(document.location.pathname.includes('/login')
         || document.location.pathname.includes('/register')
         || document.location.pathname.includes('/verify')
