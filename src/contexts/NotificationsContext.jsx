@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../api';
+import {useAuth} from "@/contexts/AuthContext.jsx";
 
 const NotificationsContext = createContext({
     unreadCount: 0,
@@ -16,11 +17,14 @@ export const useNotifications = () => {
 };
 
 export const NotificationsProvider = ({ children }) => {
+    const { isAuthenticated } = useAuth();
     const [unreadCount, setUnreadCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
 
     // Загрузка количества непрочитанных уведомлений
     const refreshUnreadCount = async () => {
+        if (!isAuthenticated) return;
+
         setIsLoading(true);
         try {
             const response = await api.getNotifications({
@@ -40,7 +44,7 @@ export const NotificationsProvider = ({ children }) => {
     // Загрузка при монтировании
     useEffect(() => {
         refreshUnreadCount();
-    }, []);
+    }, [isAuthenticated]);
 
     // Polling каждые 5 секунд для обновления счетчика
     useEffect(() => {
