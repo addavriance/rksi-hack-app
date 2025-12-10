@@ -21,6 +21,16 @@ export const isProtectedPath = (path?: string) => {
         || document.location.pathname.includes('/404'))
 }
 
+export const isAdminPath = (path?: string) => {
+    if (path) {
+        return (path.includes('/admin')
+            || path.includes('/analytics'))
+    }
+
+    return (document.location.pathname.includes('/admin')
+        || document.location.pathname.includes('/analytics'))
+}
+
 export const redirectTo = (path: string) => {
     if (!document.location.pathname.includes(path)) {
         document.location.pathname = path

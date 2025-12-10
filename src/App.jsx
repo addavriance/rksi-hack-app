@@ -5,7 +5,7 @@ import VerificationPage from "./pages/VerificationPage";
 import {useAuth} from "@/contexts/AuthContext";
 import {Loader2} from "lucide-react";
 import {useEffect} from "react";
-import {isProtectedPath, redirectTo} from "@/lib/utils";
+import {isAdminPath, isProtectedPath, redirectTo} from "@/lib/utils";
 import EventsPage from "@/pages/EventsPage.jsx";
 import Layout from "@/components/layout/Layout.jsx";
 import NotFoundPage from "@/pages/NotFoundPage.jsx";
@@ -18,17 +18,21 @@ import AdminPage from "@/pages/AdminPage.jsx";
 import AnalyticsPage from "@/pages/AnalyticsPage.jsx";
 
 function App() {
-    const {isAuthenticated, isLoading} = useAuth();
+    const {user, isAuthenticated, isLoading} = useAuth();
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated && isProtectedPath()) {
             redirectTo('/login');
         }
+
+        if (isAuthenticated && user.role === "USER" && isAdminPath()) {
+            redirectTo('/events');
+        }
     }, [isAuthenticated, isLoading]);
 
     return (
         <>
-            {((isLoading || !isAuthenticated) && isProtectedPath()) && (
+            {(((isLoading || !isAuthenticated) && isProtectedPath()) || isAuthenticated && user.role === "USER" && isAdminPath()) && (
                 <div className="text-center py-12 flex justify-center gap-2">
                     <Loader2 className="animate-spin"/>
                 </div>
