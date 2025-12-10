@@ -92,7 +92,6 @@ function App() {
         if (isGithubRedirect) {
             console.log('🎯 [App] GitHub redirect detected, setting isProcessingRedirect to true');
             setIsProcessingRedirect(true);
-            return;
         }
 
         console.log('🔐 [App] Checking auth protection...');
