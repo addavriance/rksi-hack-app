@@ -11,9 +11,11 @@ export const validators = {
         if (password.trim().length < 8) return "Минимум 8 символов";
         if (password.trim().length > 64) return "Максимум 64 символа";
 
-        if (!/[A-ZА-Я]/.test(password)) return "Добавьте хотя бы одну заглавную букву";
+        if (!/[A-Za-z]/.test(password)) return "Пароль должен содержать только латиницу"; // все равно не получится, раскладка в форме меняется на английскую
 
-        if (!/[a-zа-я]/.test(password)) return "Добавьте хотя бы одну строчную букву";
+        if (!/[A-Z]/.test(password)) return "Добавьте хотя бы одну заглавную букву";
+
+        if (!/[a-z]/.test(password)) return "Добавьте хотя бы одну строчную букву";
 
         if (!/\d/.test(password)) return "Добавьте хотя бы одну цифру";
 
