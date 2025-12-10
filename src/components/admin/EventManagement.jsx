@@ -19,7 +19,7 @@ import {
 import { format, parseISO, isPast } from "date-fns";
 import { ru } from "date-fns/locale";
 import { api } from "@/api";
-import { EventStatusEnum, UserRoleEnum } from "@/types";
+import {EventStatusEnum, UserStatusEnum} from "@/types";
 import { toast } from "sonner";
 import { handlePydanticError } from "@/lib/utils.ts";
 import { Label } from "@/components/ui/label";
@@ -78,7 +78,7 @@ const EventManagement = ({ searchQuery }) => {
     const loadUsers = async () => {
         try {
             const data = await api.getUsers({ include_deleted: false });
-            setUsers(data.filter(user => user.role === UserRoleEnum.USER));
+            setUsers(data.filter(user => user.status === UserStatusEnum.ACTIVE));
         } catch (error) {
             console.error("Ошибка загрузки пользователей:", error);
         }
