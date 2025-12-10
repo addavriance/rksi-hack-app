@@ -7,7 +7,7 @@ import {Button} from "@/components/ui/button";
 import {Badge} from "@/components/ui/badge";
 import {
     MoreVertical, Edit, Shield, Mail, Trash2, Eye, UserCog,
-    Search, Filter, Calendar, User
+    Search, Filter, Calendar, User, CheckIcon
 } from "lucide-react";
 import {
     DropdownMenu, DropdownMenuContent,
@@ -42,8 +42,10 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Calendar as CalendarComponent} from "@/components/ui/calendar";
 import {format} from "date-fns";
 import {ru} from "date-fns/locale";
+import {useAuth} from "@/contexts/AuthContext.jsx";
 
 const UserManagement = ({searchQuery}) => {
+    const {user: myUser} = useAuth();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -171,10 +173,6 @@ const UserManagement = ({searchQuery}) => {
     };
 
     const handleConfirmResetPassword = async () => {
-        await handleSubmit(null, (_) => {});
-
-        if (Object.keys(errors).length > 0) return;
-
         try {
             if (!userToResetPassword) return;
 
@@ -194,7 +192,22 @@ const UserManagement = ({searchQuery}) => {
         }
     };
 
+    const handleRecoveryClick = async (user) => {
+        const userData = {
+            deleted_at: null,
+        }
+        await api.updateUser(user.id, userData);
+        await loadUsers();
+
+        toast.success("Пользователь успешно восстановлен!");
+    };
+
     const handleDeleteClick = (user) => {
+        if (user.email === myUser.email) {
+            toast.error("Вы не можете удалить себя.");
+            return;
+        }
+
         setUserToDelete(user);
         setDeleteDialogOpen(true);
     };
@@ -327,7 +340,7 @@ const UserManagement = ({searchQuery}) => {
                                     <Label htmlFor="filter-status">Статус</Label>
                                     <Select
                                         value={filters.status}
-                                        onValueChange={(value) => handleFilterPasswordChange('status', value)}
+                                        onValueChange={(value) => handleFilterChange('status', value)}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Все статусы" />
@@ -468,9 +481,11 @@ const UserManagement = ({searchQuery}) => {
                                                         Сбросить пароль
                                                     </DropdownMenuItem>
                                                     {user.status === UserStatusEnum.DELETED ? (
-                                                        <DropdownMenuItem disabled>
-                                                            <Trash2 className="mr-2 h-4 w-4"/>
-                                                            Удалено
+                                                        <DropdownMenuItem
+                                                            onClick={() => handleRecoveryClick(user)}
+                                                        >
+                                                            <CheckIcon className="mr-2 h-4 w-4"/>
+                                                            Восстановить
                                                         </DropdownMenuItem>
                                                     ) : (
                                                         <DropdownMenuItem
@@ -498,7 +513,7 @@ const UserManagement = ({searchQuery}) => {
                     <DialogHeader>
                         <DialogTitle>Редактирование пользователя</DialogTitle>
                         <DialogDescription>
-                            Измените данные пользователя. Адрес почты не может быть изменен.
+                            Измените данные пользователя.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -613,7 +628,7 @@ const UserManagement = ({searchQuery}) => {
                         }}>
                             Отмена
                         </Button>
-                        <Button onClick={handleConfirmResetPassword}>
+                        <Button onClick={() => handleSubmit(null, handleConfirmResetPassword)}>
                             Сбросить пароль и отправить на email
                         </Button>
                     </DialogFooter>

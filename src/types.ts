@@ -94,6 +94,7 @@ export interface UpdateUserDTO {
     role?: UserRoleEnum | null;
     email?: string | null;
     full_name?: string | null;
+    deleted_at?: string | null;
 }
 
 export interface ResetUserPasswordDTO {
