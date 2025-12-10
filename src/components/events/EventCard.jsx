@@ -2,7 +2,7 @@ import {useState} from "react";
 import {Card, CardContent} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
-import {Dialog, DialogContent, DialogTrigger} from "@/components/ui/dialog";
+import {Dialog, DialogContent, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import {
     HoverCard,
     HoverCardContent,
@@ -185,12 +185,10 @@ const EventCard = ({event, onParticipationChange, onCancelRequest}) => {
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                                    <DialogTitle className="text-2xl font-semibold">
+                                        {event.title}
+                                    </DialogTitle>
                                     <div className="space-y-4">
-                                        {/* Заголовок */}
-                                        <h3 className="text-2xl font-semibold pr-8">
-                                            {event.title}
-                                        </h3>
-
                                         {/* Изображение */}
                                         {event.image && (
                                             <div className="relative h-48 rounded-lg overflow-hidden">
@@ -258,6 +256,15 @@ const EventCard = ({event, onParticipationChange, onCancelRequest}) => {
                                                             {event.location}
                                                         </p>
                                                     </div>
+                                                </div>
+                                            )}
+
+                                            {event.paymentInfo && (
+                                                <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                                                    <h4 className="font-medium mb-2">Информация об оплате</h4>
+                                                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                                                        {event.paymentInfo}
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>

@@ -44,6 +44,7 @@ const EventsPage = () => {
             maxParticipants: event.max_participants_count,
             status: event.status.toLowerCase(), // ACTIVE → active, PAST → past, REJECTED → rejected
             isParticipating: event.participation_status === 'PARTICIPATING',
+            paymentInfo: event.payment_info,
             location: event.location,
             participation_status: event.participation_status, // Сохраняем для обновления
         };
