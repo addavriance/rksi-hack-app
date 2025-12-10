@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Bell, Loader2, ExternalLink } from "lucide-react";
 import { api } from "@/api.js";
 import { toast } from "sonner";
+import { useNotifications } from "@/contexts/NotificationsContext";
 
 const NotificationsPage = () => {
+    const { refreshUnreadCount } = useNotifications();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -64,6 +66,11 @@ const NotificationsPage = () => {
             if (error) {
                 setError(null);
             }
+            
+            // Обновляем счетчик непрочитанных уведомлений
+            if (reset) {
+                refreshUnreadCount();
+            }
         } catch (err) {
             const errorMessage = err.response?.data?.detail || err.message || 'Ошибка при загрузке уведомлений';
             // Показываем ошибку только если не silent режим
@@ -117,6 +124,9 @@ const NotificationsPage = () => {
                         : n
                 )
             );
+            
+            // Обновляем счетчик непрочитанных уведомлений
+            refreshUnreadCount();
         } catch (err) {
             const errorMessage = err.response?.data?.detail || err.message || 'Ошибка при отметке уведомления';
             toast.error(errorMessage);
