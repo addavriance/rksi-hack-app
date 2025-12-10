@@ -76,7 +76,7 @@ const Sidebar = () => {
             {/* Десктопный сайдбар - скрыт на мобильных */}
             <div className="hidden md:flex w-16 bg-white dark:bg-gray-900 border-r dark:border-gray-800 h-screen sticky top-0 flex flex-col">
                 {/* Верхняя часть с логотипом */}
-                <div className="p-4 border-b dark:border-gray-800 flex items-center justify-center">
+                <div className="py-4 border-b dark:border-gray-800 flex items-center justify-center">
                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                         <Calendar className="h-6 w-6 text-primary" />
                     </div>
@@ -84,7 +84,7 @@ const Sidebar = () => {
 
                 {/* Навигация */}
                 <nav className="flex-1 p-2 overflow-y-auto">
-                    <ul className="space-y-1">
+                    <ul className="space-y-2">
                         {navItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = location.pathname === item.path;
@@ -98,7 +98,7 @@ const Sidebar = () => {
                                                 to={item.path}
                                                 onMouseEnter={() => setHoveredItem(item.path)}
                                                 onMouseLeave={() => setHoveredItem(null)}
-                                                className={`flex items-center justify-center relative px-2 py-2 rounded-lg text-sm transition-colors ${
+                                                className={`flex items-center justify-center relative px-3 py-3 rounded-lg text-sm transition-colors ${
                                                     isActive
                                                         ? "bg-primary text-white"
                                                         : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
