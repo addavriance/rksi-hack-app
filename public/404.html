@@ -6,8 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>TTK Afisha</title>
     <script>
-        sessionStorage.redirect = location.pathname;
-        location.replace('/');
+        const redirectData = {
+            path: window.location.pathname,
+            search: window.location.search,
+            hash: window.location.hash,
+            href: window.location.href,
+            timestamp: Date.now()
+        };
+
+        sessionStorage.setItem('githubPagesRedirect', JSON.stringify(redirectData));
+
+        const redirectUrl = window.location.search
+            ? '/' + window.location.search + window.location.hash
+            : '/';
+
+        window.location.replace(redirectUrl);
     </script>
 </head>
 <body>

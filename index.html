@@ -9,10 +9,40 @@
     <title>rksi-hack-app</title>
     <script>
         (function () {
-            var redirect = sessionStorage.redirect;
-            delete sessionStorage.redirect;
-            if (redirect && redirect != location.pathname) {
-                history.replaceState(null, null, redirect);
+            try {
+                const redirectData = sessionStorage.getItem('githubPagesRedirect');
+
+                if (redirectData) {
+                    const data = JSON.parse(redirectData);
+                    sessionStorage.removeItem('githubPagesRedirect');
+
+                    const isExpired = Date.now() - data.timestamp > 5 * 60 * 1000;
+
+                    if (!isExpired) {
+                        const currentPath = window.location.pathname + window.location.search + window.location.hash;
+                        const savedPath = data.path + data.search + data.hash;
+
+                        if (currentPath !== savedPath) {
+                            let newSearch = data.search;
+                            if (window.location.search && data.search) {
+                                const currentParams = new URLSearchParams(window.location.search);
+                                const savedParams = new URLSearchParams(data.search);
+
+                                savedParams.forEach((value, key) => {
+                                    currentParams.set(key, value);
+                                });
+                                newSearch = '?' + currentParams.toString();
+                            } else if (window.location.search && !data.search) {
+                                newSearch = window.location.search;
+                            }
+
+                            const newUrl = data.path + newSearch + data.hash;
+                            window.history.replaceState(null, null, newUrl);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error handling redirect:', e);
             }
         })();
     </script>
