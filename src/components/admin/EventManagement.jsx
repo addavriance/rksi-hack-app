@@ -21,7 +21,7 @@ import { ru } from "date-fns/locale";
 import { api } from "@/api";
 import { EventStatusEnum, UserRoleEnum } from "@/types";
 import { toast } from "sonner";
-import { handlePydanticError } from "@/lib/utils.js";
+import { handlePydanticError } from "@/lib/utils.ts";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
