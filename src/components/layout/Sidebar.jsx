@@ -26,11 +26,13 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNotifications } from "@/contexts/NotificationsContext";
 import { useState } from "react";
 
 const Sidebar = () => {
     const location = useLocation();
     const { user, logout } = useAuth();
+    const { unreadCount } = useNotifications();
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [hoveredItem, setHoveredItem] = useState(null);
 
@@ -39,7 +41,7 @@ const Sidebar = () => {
     const navItems = [
         { path: "/dashboard", label: "Главная", icon: Home },
         { path: "/events", label: "События", icon: Calendar },
-        { path: "/notifications", label: "Уведомления", icon: Bell, badge: 3 },
+        { path: "/notifications", label: "Уведомления", icon: Bell, badge: unreadCount > 0 ? unreadCount : null },
     ];
 
     const adminItems = [
