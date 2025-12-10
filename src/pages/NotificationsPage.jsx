@@ -28,14 +28,16 @@ const NotificationsPage = () => {
     };
 
     // Загрузка уведомлений
-    const loadNotifications = async (reset = false) => {
-        if (reset) {
-            setLoading(true);
-            setOffset(0);
-            setNotifications([]);
-            setError(null);
-        } else {
-            setLoadingMore(true);
+    const loadNotifications = async (reset = false, silent = false) => {
+        if (!silent) {
+            if (reset) {
+                setLoading(true);
+                setOffset(0);
+                setNotifications([]);
+                setError(null);
+            } else {
+                setLoadingMore(true);
+            }
         }
 
         try {
@@ -57,19 +59,40 @@ const NotificationsPage = () => {
             // Проверяем, есть ли еще уведомления для загрузки
             setHasMore(mappedNotifications.length === limit);
             setOffset(currentOffset + mappedNotifications.length);
+            
+            // Очищаем ошибку при успешной загрузке
+            if (error) {
+                setError(null);
+            }
         } catch (err) {
             const errorMessage = err.response?.data?.detail || err.message || 'Ошибка при загрузке уведомлений';
-            setError(errorMessage);
-            toast.error(errorMessage);
+            // Показываем ошибку только если не silent режим
+            if (!silent) {
+                setError(errorMessage);
+                toast.error(errorMessage);
+            }
         } finally {
-            setLoading(false);
-            setLoadingMore(false);
+            if (!silent) {
+                setLoading(false);
+                setLoadingMore(false);
+            }
         }
     };
 
     // Загрузка данных при монтировании
     useEffect(() => {
         loadNotifications(true);
+    }, []);
+
+    // Polling: обновление уведомлений каждые 5 секунд
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            // Обновляем только первую страницу (первые 50 уведомлений) без показа loading
+            loadNotifications(true, true);
+        }, 5000);
+
+        // Очистка интервала при размонтировании
+        return () => clearInterval(intervalId);
     }, []);
 
     // Сортировка по дате (новые сверху)
