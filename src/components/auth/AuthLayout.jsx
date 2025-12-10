@@ -56,6 +56,11 @@ export const AuthLayout = ({
                         </div>
                     </div>
                 </div>
+                <div
+                    className="lg:hidden absolute bottom-6 px-12 text-sm flex justify-between text-gray-900 w-full">
+                    <p>© 2025 RKSI Hack</p>
+                    <p><span className="uppercase text-[0.7rem]">asyncore</span> powered</p>
+                </div>
             </div>
         </div>
     );
