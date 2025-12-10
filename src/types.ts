@@ -156,6 +156,7 @@ export interface EventCardDTO {
     ends_at: string;
     image_url: string;
     participants_count: number;
+    max_participants_count: number | null;
     status: EventStatusEnum;
     participation_status: ParticipationStatusEnum;
 }

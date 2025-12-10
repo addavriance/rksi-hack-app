@@ -59,6 +59,11 @@ const EventCard = ({event, onParticipationChange, onCancelRequest}) => {
     const handleParticipate = async () => {
         if (isUpdating) return;
 
+        if (event.participants_count === event.max_participants_count) {
+            toast.error("Вы не можете присоединиться к этому событию. Достигнут максимальный лимит участников.");
+            return;
+        }
+
         const previousStatus = event.participation_status;
 
         if (onParticipationChange) {
@@ -116,6 +121,7 @@ const EventCard = ({event, onParticipationChange, onCancelRequest}) => {
         <HoverCard openDelay={300} closeDelay={200}>
             <HoverCardTrigger asChild>
                 <Card
+                    onClick={() => setIsDialogOpen(true)}
                     className="overflow-hidden hover:shadow-lg transition-shadow duration-200 group cursor-pointer h-full">
                     {/* Изображение */}
                     <div className="relative h-48 overflow-hidden">
@@ -137,7 +143,7 @@ const EventCard = ({event, onParticipationChange, onCancelRequest}) => {
                         )}
                     </div>
 
-                    <CardContent className="p-6">
+                    <CardContent className="p-6" onClick={(e) => e.stopPropagation()}>
                         {/* Заголовок и категория */}
                         <div className="mb-4">
                             <h3 className="text-lg font-semibold line-clamp-1 mb-1">
@@ -178,12 +184,6 @@ const EventCard = ({event, onParticipationChange, onCancelRequest}) => {
                         {/* Действия */}
                         <div className="flex gap-2">
                             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button variant="outline" className="flex-1" size="sm">
-                                        <Eye className="h-4 w-4 mr-2"/>
-                                        Подробнее
-                                    </Button>
-                                </DialogTrigger>
                                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                                     <DialogTitle className="text-2xl font-semibold">
                                         {event.title}
@@ -209,6 +209,10 @@ const EventCard = ({event, onParticipationChange, onCancelRequest}) => {
                                             {event.isParticipating && (
                                                 <Badge className="bg-primary text-white">
                                                     Вы участвуете
+                                                </Badge>
+                                            ) || (
+                                                <Badge className="bg-gray-600 text-white">
+                                                    Вы не участвуете
                                                 </Badge>
                                             )}
                                         </div>
@@ -373,9 +377,9 @@ const EventCard = ({event, onParticipationChange, onCancelRequest}) => {
                     </div>
 
                     {/* Полное описание */}
-                    {(event.fullDescription || event.description) && (
+                    {(event.description || event.fullDescription) && (
                         <div className="text-sm text-muted-foreground">
-                            <p className="line-clamp-3">{event.fullDescription || event.description}</p>
+                            <p className="line-clamp-3">{event.description || event.fullDescription}</p>
                         </div>
                     )}
 

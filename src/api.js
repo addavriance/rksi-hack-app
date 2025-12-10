@@ -30,7 +30,7 @@ class API {
             },
             (error) => {
                 if (error.response) {
-                    if (error.response.status === 401) {
+                    if (error.response.status === 401 && error.response.data.detail.includes("session")) {
                         localStorage.removeItem('login_session_token');
                         localStorage.removeItem('login_session_uid');
 
