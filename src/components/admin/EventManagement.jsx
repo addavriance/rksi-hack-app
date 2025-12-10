@@ -21,7 +21,7 @@ import { ru } from "date-fns/locale";
 import { api } from "@/api";
 import {EventStatusEnum, UserStatusEnum} from "@/types";
 import { toast } from "sonner";
-import { handlePydanticError } from "@/lib/utils.ts";
+import {downloadFile, handlePydanticError} from "@/lib/utils.ts";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -31,6 +31,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import ExcelJS from "exceljs";
 
 const EventManagement = ({ searchQuery }) => {
     const [events, setEvents] = useState([]);
@@ -306,6 +307,26 @@ const EventManagement = ({ searchQuery }) => {
         return event.participants?.length || 0;
     };
 
+    const exportParticipants = async (event) => {
+        try {
+            if (!event.participants || event.participants.length === 0) {
+                toast.error("У события нет участников для экспорта");
+                return;
+            }
+
+            const blob = await api.exportEventParticipants(event.id);
+
+            const filename = `participants_event_${event.id}`;
+
+            downloadFile(blob, filename);
+
+            toast.success("Участники успешно экспортированы!");
+        } catch (error) {
+            toast.error("Ошибка экспорта участников");
+            console.error(error);
+        }
+    };
+
     const statusOptions = [
         { value: "all", label: "Все статусы" },
         { value: EventStatusEnum.ACTIVE.toLowerCase(), label: "Активные" },
@@ -463,6 +484,10 @@ const EventManagement = ({ searchQuery }) => {
                                                         <DropdownMenuItem onClick={() => handleEdit(event)}>
                                                             <Edit className="mr-2 h-4 w-4" />
                                                             Редактировать
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => exportParticipants(event)}>
+                                                            <Upload className="mr-2 h-4 w-4" />
+                                                            Экспорт участников
                                                         </DropdownMenuItem>
                                                         {event.status !== EventStatusEnum.PAST && (
                                                             <DropdownMenuItem

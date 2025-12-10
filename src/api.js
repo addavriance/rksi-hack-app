@@ -292,6 +292,20 @@ class API {
     }
 
     /**
+     * Экспорт участников мероприятия
+     * @param {number} eventId - ID мероприятия
+     * @param {string} format - Формат экспорта (csv, xlsx, json)
+     * @returns {Promise<Blob>} - Blob с данными для скачивания
+     */
+    async exportEventParticipants(eventId, format = 'xlsx') {
+        const response = await this.apiClient.get(`/events/${eventId}/participants/export`, {
+            params: { format },
+            responseType: 'blob',
+        });
+        return response.data;
+    }
+
+    /**
      * Очистка токенов из localStorage
      */
     logout() {
