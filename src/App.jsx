@@ -15,6 +15,7 @@ import NotificationsPage from "@/pages/NotificationsPage.jsx";
 import './App.css';
 import ResetPasswordPage from "@/pages/ResetPasswordPage.jsx";
 import AdminPage from "@/pages/AdminPage.jsx";
+import AnalyticsPage from "@/pages/AnalyticsPage.jsx";
 
 function App() {
     const {isAuthenticated, isLoading} = useAuth();
@@ -47,6 +48,7 @@ function App() {
                             <Route path="events" element={<EventsPage />} />
                             <Route path="notifications" element={<NotificationsPage />} />
                             <Route path="admin" element={<AdminPage/>}/>
+                            <Route path="analytics" element={<AnalyticsPage/>}/>
                         </Route>
                         <Route path="*" element={<Navigate to="/404" replace/>} />
                     </Routes>

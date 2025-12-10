@@ -219,3 +219,37 @@ export interface ApiResponse<T = any> {
     statusText: string;
     headers: any;
 }
+
+export interface AdminStatisticScalarDTO {
+    name: string;
+    value: number;
+    unit: string;
+}
+
+export interface AdminStatisticPointDTO {
+    x: string;
+    y: number;
+}
+
+export interface AdminStatisticGraphDTO {
+    name: string;
+    points: AdminStatisticPointDTO[];
+}
+
+export interface AdminStatisticBinDTO {
+    label: string;
+    from_value: number;
+    to_value: number;
+    count: number;
+}
+
+export interface AdminStatisticHistogramDTO {
+    name: string;
+    bins: AdminStatisticBinDTO[];
+}
+
+export interface AdminStatisticsDTO {
+    scalars: AdminStatisticScalarDTO[];
+    graphs: AdminStatisticGraphDTO[];
+    histograms: AdminStatisticHistogramDTO[];
+}

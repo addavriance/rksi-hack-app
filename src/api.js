@@ -261,6 +261,15 @@ class API {
     }
 
     /**
+     * Получение статистики для администратора
+     * @returns {Promise<AdminStatisticsDTO>} - Статистические данные
+     */
+    async getAdminStatistics() {
+        const response = await this.apiClient.get('/statistics');
+        return response.data;
+    }
+
+    /**
      * Очистка токенов из localStorage
      */
     logout() {
