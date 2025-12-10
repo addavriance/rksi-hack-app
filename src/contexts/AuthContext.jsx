@@ -52,11 +52,6 @@ export const AuthProvider = ({ children }) => {
                 }
             } catch (error) {
                 console.error('Ошибка при проверке сессии:', error);
-                // Если сессия невалидна, очищаем токены
-                redirectTo('/login');
-
-                localStorage.removeItem('login_session_token');
-                localStorage.removeItem('login_session_uid');
             } finally {
                 setLoading(false);
             }

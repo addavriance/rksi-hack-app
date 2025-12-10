@@ -1,4 +1,6 @@
 import axios from 'axios';
+import {redirectTo} from "@/lib/utils";
+import {toast} from "sonner";
 
 class API {
     constructor() {
@@ -21,6 +23,26 @@ class API {
 
             return config;
         });
+
+        this.apiClient.interceptors.response.use(
+            (response) => {
+                return response;
+            },
+            (error) => {
+                if (error.response) {
+                    if (error.response.status === 401) {
+                        localStorage.removeItem('login_session_token');
+                        localStorage.removeItem('login_session_uid');
+
+                        redirectTo('/login');
+
+                        toast.error("Сессия истекла. Пожалуйста, войдите снова.");
+                    }
+                }
+
+                return Promise.reject(error);
+            }
+        );
     }
 
     /**
