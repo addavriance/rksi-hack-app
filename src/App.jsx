@@ -48,18 +48,11 @@ function App() {
                             <Route path="notifications" element={<NotificationsPage />} />
                             <Route path="admin" element={<AdminPage/>}/>
                         </Route>
-                        {/*<Route path="/posts" element={<PostsPage />} />*/}
-                        {/*<Route path="/posts/create" element={<CreatePostPage />} />*/}
-                        {/*<Route path="/posts/:id" element={<PostDetailPage />} />*/}
-                        {/*<Route path="/profile" element={<ProfilePage/>}/>*/}
-                        {/*<Route path="/todos" element={<TodoPage/>}/>*/}
-                        {/*<Route path="/404" element={<NotFoundPage />} />*/}
                         <Route path="*" element={<Navigate to="/404" replace/>} />
                     </Routes>
                 </BrowserRouter>
             )}
         </>
-
     );
 }
 
