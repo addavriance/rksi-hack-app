@@ -69,12 +69,12 @@ const GitHubPagesRedirectHandler = () => {
 
 function App() {
     const {isAuthenticated, isLoading} = useAuth();
-    const [isProcessingRedirect, setIsProcessingRedirect] = useState(false);
+    const [hasProcessedRedirect, setHasProcessedRedirect] = useState(false);
 
     console.log('🚀 [App] Component render', {
         isAuthenticated,
         isLoading,
-        isProcessingRedirect,
+        hasProcessedRedirect,
         currentPath: window.location.pathname + window.location.search,
         sessionStorage: {
             github_pages_redirect: sessionStorage.getItem('github_pages_redirect'),
@@ -89,9 +89,10 @@ function App() {
         const isGithubRedirect = sessionStorage.getItem('github_pages_redirect');
         console.log('📋 [App] Checking GitHub redirect:', isGithubRedirect);
 
-        if (isGithubRedirect) {
-            console.log('🎯 [App] GitHub redirect detected, setting isProcessingRedirect to true');
-            setIsProcessingRedirect(true);
+        if (isGithubRedirect && !hasProcessedRedirect) {
+            console.log('🎯 [App] GitHub redirect detected, setting hasProcessedRedirect to true');
+            setHasProcessedRedirect(true);
+            return;
         }
 
         console.log('🔐 [App] Checking auth protection...');
@@ -119,53 +120,48 @@ function App() {
         } else {
             console.log('✅ [App] User authenticated or still loading');
         }
-    }, [isAuthenticated, isLoading]);
+    }, [isAuthenticated, isLoading, hasProcessedRedirect]);
 
-    if (isProcessingRedirect) {
-        console.log('⏳ [App] Showing processing redirect loader');
+    if (isLoading && !hasProcessedRedirect) {
+        console.log('⏳ [App] Showing auth loader (isLoading)');
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <span className="ml-2 text-muted-foreground">Загрузка...</span>
+                <span className="ml-2 text-muted-foreground">Проверка авторизации...</span>
             </div>
         );
     }
 
-    const shouldShowAuthLoader = (isLoading || !isAuthenticated) && isProtectedPath();
-    console.log('👁️ [App] Should show auth loader:', shouldShowAuthLoader);
-
+    console.log('✅ [App] Rendering main app with Router');
     return (
-        <>
-            {shouldShowAuthLoader && (
-                console.log('⏳ [App] Showing auth loader'),
-                    <div className="text-center py-12 flex justify-center gap-2">
-                        <Loader2 className="animate-spin"/>
+        <BrowserRouter>
+            <GitHubPagesRedirectHandler />
+            {hasProcessedRedirect && !isAuthenticated && !isLoading ? (
+                console.log('⏳ [App] Showing redirect processing loader'),
+                    <div className="min-h-screen flex items-center justify-center">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <span className="ml-2 text-muted-foreground">Перенаправление...</span>
                     </div>
-            ) || (
-                console.log('✅ [App] Rendering main app with Router'),
-                    <BrowserRouter>
-                        <GitHubPagesRedirectHandler />
+            ) : (
+                <Routes>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/verify" element={<VerificationPage />} />
+                    <Route path="/recovery" element={<ResetPasswordPage />} />
+                    <Route path="/404" element={<NotFoundPage />} />
 
-                        <Routes>
-                            <Route path="/login" element={<LoginPage />} />
-                            <Route path="/register" element={<RegisterPage />} />
-                            <Route path="/verify" element={<VerificationPage />} />
-                            <Route path="/recovery" element={<ResetPasswordPage />} />
-                            <Route path="/404" element={<NotFoundPage />} />
+                    <Route path="/" element={<Layout />}>
+                        <Route path="" element={<Navigate to="/dashboard" replace/>}/>
+                        <Route path="dashboard" element={<DashboardPage/>}/>
+                        <Route path="events" element={<EventsPage />} />
+                        <Route path="notifications" element={<NotificationsPage />} />
+                        <Route path="admin" element={<AdminPage/>}/>
+                    </Route>
 
-                            <Route path="/" element={<Layout />}>
-                                <Route path="" element={<Navigate to="/dashboard" replace/>}/>
-                                <Route path="dashboard" element={<DashboardPage/>}/>
-                                <Route path="events" element={<EventsPage />} />
-                                <Route path="notifications" element={<NotificationsPage />} />
-                                <Route path="admin" element={<AdminPage/>}/>
-                            </Route>
-
-                            <Route path="*" element={<Navigate to="/404" replace/>} />
-                        </Routes>
-                    </BrowserRouter>
+                    <Route path="*" element={<Navigate to="/404" replace/>} />
+                </Routes>
             )}
-        </>
+        </BrowserRouter>
     );
 }
 
